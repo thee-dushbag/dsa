@@ -1,0 +1,8 @@
+# Ignore vscode configs symlink
+.vscode
+# Ignore some temporary test/utility files
+*.tmp
+*.ignore.*
+*.ignore
+*.ign
+*.IGN
