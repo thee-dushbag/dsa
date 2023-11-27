@@ -85,15 +85,15 @@ def getheaptype() -> HeapType:
 
 
 def heapify(
-    heap: ty.MutableSequence[_T], *, heap_type: ty.Optional[HeapType] = None
+    heap: ty.MutableSequence, *, heap_type: ty.Optional[HeapType] = None
 ) -> None:
     """
     Convert a mutable sequence (eq list) to a heap
     (MIN-HEAP default or specify using param heap_type)
     """
     comparer, size = _cmp_heap_type_map[heap_type or _default_heap_type], len(heap)
-    for i in reversed(range(size // 2)):
-        _heapify_impl(heap, i, size, comparer)
+    for head in reversed(range(size // 2)):
+        _heapify_impl(heap, head, comparer)
 
 
 def heappush(
@@ -129,7 +129,7 @@ def heappop(
     heap[index], heap[-1] = heap[-1], heap[index]  # Raise IndexError when necessary
     item: _T = heap.pop()
     if heap:
-        _heapify_impl(heap, index, len(heap), comparer)
+        _heapify_impl(heap, index, comparer)
     return item
 
 
@@ -144,25 +144,25 @@ class _Child(ty.Generic[_T]):
     respectively.
     """
     def __init__(
-        self, heap: ty.MutableSequence[_T], size: int, head: int, cmp: _CompareF[_T]
+        self, heap: ty.MutableSequence[_T], head: int, cmp: _CompareF[_T]
     ) -> None:
-        self._size: int = size
         self._head: int = head
-        self.head = head
         self._heap = heap
         self.cmp = cmp
+        self.head = head
+    
+    @property
+    def size(self) -> int:
+        return len(self.heap)
 
     @property
-    def parent(self) -> int:
+    def parent(self) -> ty.Optional[int]:
+        if not self.head: return None
         return (self.head - 1) >> 1
 
     @property
     def heap(self) -> ty.MutableSequence:
         return self._heap
-
-    @property
-    def size(self) -> int:
-        return self._size
 
     @property
     def head(self) -> int:
@@ -214,16 +214,14 @@ class _Child(ty.Generic[_T]):
 
 
 def _heapify_impl(
-    heap: ty.MutableSequence[_T], head: int, size: int, cmp: _CompareF[_T]
+    heap: ty.MutableSequence[_T], head: int, cmp: _CompareF[_T]
 ):
-    child = _Child(heap, size, head, cmp)
-    print(child)
+    child = _Child(heap, head, cmp)
     _heapify_detail_impl(child)
 
 
-def _heapify_detail_impl(child: _Child[_T]) -> None:
+def _heapify_detail_impl(child: _Child) -> None:
     index = child.swaped_index()
-    if index is None:
-        return
+    if index is None: return
     child.head = index
     _heapify_detail_impl(child)

@@ -57,3 +57,54 @@ def test_heappop_min():
     expected_output = [12, 30, 47, 38, 34, 50, 48, 43, 46]
     heap.heappop(input_heap, target_index)
     assert input_heap == expected_output
+
+
+# Test linked lists
+def test_forward_list():
+    from ldsa.linked_list import ForwardList, Node
+    items = [1, 2, 3, 4]
+    flist = ForwardList.fromiter(items)
+    assert list(flist) == items, '__iter__ failed.'
+    assert list(reversed(items)) == list(reversed(flist)), '__reversed__ error'
+    assert flist.lastnode().value == items[-1], 'faild last element'
+    items.append(5)
+    flist.append(Node(5))
+    assert flist.lastnode().value == items[-1], 'append failed.'
+    items.insert(0, 10)
+    flist.insert(Node(10), 0)
+    assert flist[0] == items[0], 'insert failed.'
+    assert flist[-1] == items[-1], f'Check last element index.'
+    items.insert(3, 100)
+    flist.insert(Node(100), 3)
+    assert flist[3] == items[3], 'insert failed.'
+    items.pop(3)
+    flist.delete(3)
+    assert list(flist) == items, 'delete failed.'
+    items.pop(2)
+    del flist[2]
+    assert list(flist) == items, 'delete failed.'
+
+
+def test_bilist():
+    from ldsa.linked_list import List, BiNode
+    items = [1, 2, 3, 4]
+    flist = List.fromiter(items)
+    assert list(flist) == items, '__iter__ failed.'
+    assert flist.lastnode().value == items[-1], 'faild last element'
+    assert list(reversed(items)) == list(reversed(flist)), '__reversed__ error'
+    items.append(5)
+    flist.append(BiNode(5))
+    assert flist.lastnode().value == items[-1], 'append failed.'
+    items.insert(0, 10)
+    flist.insert(BiNode(10), 0)
+    assert flist[0] == items[0], 'insert failed.'
+    assert flist[-1] == items[-1], f'Check last element index.'
+    items.insert(3, 100)
+    flist.insert(BiNode(100), 3)
+    assert flist[3] == items[3], 'insert failed.'
+    items.pop(3)
+    flist.delete(3)
+    assert list(flist) == items, 'delete failed.'
+    items.pop(2)
+    del flist[2]
+    assert list(flist) == items, 'delete failed.'
