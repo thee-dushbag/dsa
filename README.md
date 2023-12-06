@@ -1,9 +1,9 @@
 # <u>dsa</u><sub><sub>✨</sub></sub>
 
-![DSA](./assets/dsa-intro-picture.jpg)
+![DSA][dsa_picture]
 
 ### Introduction.
-This __repository's__ intent is to learn _Data Structures_ and _Algorithms_ (**DSA**). I'm using [Programiz](https://www.programiz.com/dsa) as my guide in this jungle. Basic algorithm analysis will be part of this project.
+This __repository's__ intent is to learn _Data Structures_ and _Algorithms_ (**DSA**). I'm using [Programiz][programiz] as my guide in this jungle. Basic algorithm analysis will be part of this project.
 
 On top of this, asynptotic notations will be covered and how they vary from algorithm to algorithm.
 
@@ -35,9 +35,9 @@ This means, some algorithms will be implemented in multiple languages simultaneo
 
 ### Project Structure.
 This project is divided into three parts.
-- [Data Structures](./data_structures/index.md)
-- [Algorithms](./algorithms/index.md)
-- [Extras](./extras/index.md)
+- [Data Structures][data_structures]
+- [Algorithms][algorithms]
+- [Extras][extras]
 
 The `extras` part is meant for algorithms that are more advanced and mathematical.
 
@@ -52,3 +52,9 @@ The actual testing will be done in different functions in the `test` file.
 
 ###### <u>_Disclaimer._</u>
 __*These data structures and algorithms are neither meant to be most efficient nor production ready, they are simply my gateway into more efficient problem solving techniques and code design.*__
+
+[programiz]: https://www.programiz.com/dsa
+[dsa_picture]: ./assets/dsa-intro-picture.jpg
+[data_structures]: ./data_structures/index.md
+[algorithms]: ./algorithms/index.md
+[extras]: ./extras/index.md

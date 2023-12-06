@@ -17,7 +17,7 @@ There are multiple linear data structures, they are.
 ### Stack
 ### Linked List
 
-![Linked list Picture](/assets/linked-list-dsa-picture.jpg)
+![Linked list Picture][linked_list_picture]
 
 A linked list is a linear data structure that includes a series of connected nodes. Here, each node stores the data and the address/reference of the next/previous node.
 Each node holds a value and the address/reference of the next/previous node
@@ -49,7 +49,7 @@ If an node in the list has already been found, deleting it from the list takes c
 
 ### Hash Table
 ### Heap
-![Heap Data Structure](/assets/heap-dsa-picture.jpg)
+![Heap Data Structure][heap_picture]
 
 Heap data structure is a complete binary tree that satisfies the heap property, where any given node is
 - always greater than its child node/s and the key of the root node is the largest among all other nodes. This property is also called max heap property.
@@ -66,3 +66,6 @@ Operations that can be done on a heap include:
 ###### Implementations
 - [__Python__](./ldsa/heap.py)
 ### Fibbonacci Heap
+
+[linked_list_picture]: /assets/linked-list-dsa-picture.jpg
+[heap_picture]: /assets/heap-dsa-picture.jpg
