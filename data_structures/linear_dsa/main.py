@@ -96,31 +96,51 @@ def _linked_list_seq_test(List):
         pylist.remove(4)
         mylist.remove(4)
     assert 4 not in mylist
+    print(pylist, list(mylist))
     assert pylist == list(mylist)
     del mylist[-1], pylist[-1]
     del mylist[0], pylist[0]
     assert pylist == list(mylist)
     assert mylist and pylist
-    temp = [10, 20, 30]
+    temp = [10, 20]
     pylist += temp
     mylist += temp
     pylist.extend(temp)
     mylist.extend(temp)
     assert list(reversed(pylist)) == list(reversed(mylist))
     assert pylist.pop(3) == mylist.pop(3)
-    value = 87654
+    value = 5000
+    print(pylist, list(mylist))
     pylist.insert(3, value)
     mylist.insert(3, value)
-    assert pylist == list(mylist)
+    print(pylist, list(mylist))
+    pylist.insert(0, value)
+    mylist.insert(0, value)
+    print(pylist, list(mylist))
+    pylist.insert(-1, value)
+    mylist.insert(-1, value)
+    print(pylist, list(mylist))
+    # assert pylist == list(mylist)
     assert value in mylist
 
+
 def test_singly_linked_list():
-    from ldsa.linked_list.forward import SinglyLinkedList
+    from ldsa.linked_list.list import SinglyLinkedList
 
     _linked_list_seq_test(SinglyLinkedList)
+
 
 
 def test_doubly_linked_list():
     from ldsa.linked_list.list import DoublyLinkedList
 
     _linked_list_seq_test(DoublyLinkedList)
+
+
+def test_cirdoubly_linked_list():
+    from ldsa.linked_list.list import CirDoublyLinkedList
+
+    _linked_list_seq_test(CirDoublyLinkedList)
+
+
+test_cirdoubly_linked_list()

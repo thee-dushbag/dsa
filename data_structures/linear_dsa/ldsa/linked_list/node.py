@@ -1,37 +1,44 @@
-from .abc_ import BaseNode, ty
+import typing as ty
+from typing import Any
+from .abc import NodeABC
+
+T = ty.TypeVar("T")
 
 
-class _NextNodeStr:
-    next: ty.Any
-    value: ty.Any
-
-    def __str__(self) -> str:
-        items, node = [], self
-        while node:
-            items.append(node)
-            node = node.next
-        return "[" + " -> ".join(f"{node!r}" for node in items) + "]"
-
-    def __repr__(self) -> str:
-        # return f"{self.__class__.__name__}(value={self.value}, id={hex(id(self))})"
-        return f"{self.__class__.__name__}({self.value})"
-
-
-class ForwardNode(BaseNode, _NextNodeStr):
-    def __init__(self, value=None) -> None:
-        self.value = value
-        self.next = None
+class ForwardNode(NodeABC[T]):
+    def __init__(self, value: T, *, next: "ForwardNode | None" = None) -> None:
+        self.value: T = value
+        self.next: ForwardNode | None = next
 
     def clear(self):
         self.next = None
 
 
-class Node(BaseNode, _NextNodeStr):
-    def __init__(self, value=None) -> None:
-        self.value = value
+class Node(NodeABC[T]):
+    def __init__(
+        self, value: T, *, next: "Node|None" = None, prev: "Node|None" = None
+    ) -> None:
+        self.value: T = value
+        self.next: Node | None = next
+        self.prev: Node | None = prev
+
+    def clear(self) -> Any:
         self.next = None
         self.prev = None
 
-    def clear(self):
-        self.next = None
-        self.prev = None
+
+class CircularNode(ty.Generic[T]):
+    def __init__(
+        self,
+        value: T,
+        *,
+        next: "CircularNode | None" = None,
+        prev: "CircularNode | None" = None
+    ) -> None:
+        self.value: T = value
+        self.next: CircularNode = next or self
+        self.prev: CircularNode = prev or self
+
+    def clear(self) -> Any:
+        self.next = self
+        self.prev = self
