@@ -24,7 +24,7 @@ class MutableSequenceMixin(ty.MutableSequence[_T]):
 
     def append(self, value: _T) -> None:
         node = self._list.nodefactory(value)
-        self._list.insert(self._list.size() + 1, node)
+        self._list.insert(self._list.size(), node)
 
     def clear(self) -> None:
         self._list.clear()

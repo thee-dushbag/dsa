@@ -1,7 +1,7 @@
 """
 This package contains all python implementations
-of linear data structures like arrays, linked lists,
-queue, deque, ... in their respective files like 
+of linear data structures like linked lists,
+queue, ... in their respective files like 
 `heap` data structure can be found in `heap.py`.
 """
 

@@ -120,7 +120,7 @@ def _linked_list_seq_test(List):
     pylist.insert(-1, value)
     mylist.insert(-1, value)
     print(pylist, list(mylist))
-    # assert pylist == list(mylist)
+    assert pylist == list(mylist)
     assert value in mylist
 
 
@@ -128,7 +128,6 @@ def test_singly_linked_list():
     from ldsa.linked_list.list import SinglyLinkedList
 
     _linked_list_seq_test(SinglyLinkedList)
-
 
 
 def test_doubly_linked_list():
@@ -143,4 +142,67 @@ def test_cirdoubly_linked_list():
     _linked_list_seq_test(CirDoublyLinkedList)
 
 
-test_cirdoubly_linked_list()
+def test_deque():
+    import ldsa.queue as queue
+
+    q: queue.Deque[int] = queue.Deque(maxsize=7)
+
+    with pytest.raises(queue.QueueEmpty):
+        q.popleft()
+
+    q.append(5)
+    q.extend([1, 2, 3])
+    q.extendleft([10, 20, 30])
+
+    with pytest.raises(queue.QueueFull):
+        q.appendleft(4)
+
+    data = [30, 20, 10, 5, 1, 2, 3]
+    for d in data:
+        e = q.popleft()
+        assert e == d
+
+
+def test_queue():
+    import ldsa.queue as queue
+
+    q: queue.Queue[int] = queue.Queue(maxsize=3)
+
+    with pytest.raises(queue.QueueEmpty):
+        q.pop()
+
+    q.extend([1, 2, 3])
+
+    with pytest.raises(queue.QueueFull):
+        q.append(4)
+
+    data = [1, 2, 3]
+    for d in data:
+        e = q.pop()
+        assert e == d
+
+
+def test_lifo_queue():
+    import random as rand, ldsa.queue as queue
+
+    for _ in range(100):
+        sample = rand.choices(range(1000), k=100)
+        rand.shuffle(sample)
+        stack = queue.LIFOQueue(sample)
+        sample.reverse()
+        for d in sample:
+            p = stack.pop()
+            assert d == p
+
+
+def test_priority_queue():
+    import random as rand, ldsa.queue as queue
+
+    for _ in range(100):
+        sample = rand.choices(range(1000), k=100)
+        rand.shuffle(sample)
+        data = sorted(sample)
+        pqueue = queue.PriorityQueue(sample)
+        for d in data:
+            p = pqueue.pop()
+            assert d == p
