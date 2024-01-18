@@ -8,8 +8,8 @@ There are multiple linear data structures, they are.
 - [Queue](#queue)
 - [Array](#array)
 - [Linked List](#linked-list)
-- [Hash Table](#hash-table)
 - [Heap](#heap)
+- [Hash Table](#hash-table)
 - [Fibbonacci Heap](#fibbonacci-heap)
 
 ### Queue
@@ -40,6 +40,13 @@ structure due to its fast insertion and deletions at the front and back.
 - [**Python**](./ldsa/queue.py)
 
 ### Array
+
+An Array in C/C++ is represented as a block of memory divided into slots by the size of the type to be stored in them. Arrays have O(0) insertion and deletion. The size remains the same from construction to destruction.  
+An Implementation in python will be more helpful than in c/c++ due to the extreme ease to create there.
+
+###### Implementations
+
+- [**Python**](./ldsa/array.py)
 
 ### Linked List
 
@@ -76,8 +83,6 @@ If an node in the list has already been found, deleting it from the list takes c
 
 - [**Python**](./ldsa/linked_list.py) - only implemented the doubly and singly linked list.
 
-### Hash Table
-
 ### Heap
 
 ![Heap Data Structure][heap_picture]
@@ -102,6 +107,8 @@ Operations that can be done on a heap include:
 ###### Implementations
 
 - [**Python**](./ldsa/heap.py)
+
+### Hash Table
 
 ### Fibbonacci Heap
 

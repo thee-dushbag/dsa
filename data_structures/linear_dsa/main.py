@@ -206,3 +206,30 @@ def test_priority_queue():
         for d in data:
             p = pqueue.pop()
             assert d == p
+
+
+def test_array():
+    from ldsa.array import Array
+
+    with pytest.raises(AssertionError):
+        Array(10.5)  # type: ignore
+
+    with pytest.raises(IndexError):
+        Array(-10)
+
+    arr: Array[int] = Array(10)
+
+    with pytest.raises(IndexError):
+        arr[11]
+
+    assert all(map(arr.isnone, arr))
+
+    for i in range(10):
+        arr[i] = i * i
+
+    data = list(map(lambda i: i * i, range(10)))
+    for d, a in zip(data, arr):
+        assert d == a
+
+    for d, a in zip(reversed(data), reversed(arr)):
+        assert d == a
