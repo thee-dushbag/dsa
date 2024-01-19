@@ -15,7 +15,7 @@ def simple_search(array: ty.Sequence, item, *, key=None) -> None | int:
 def binary_search(sorted_array: ty.Sequence, item, *, key=None):
     key = identity if key is None else key
     low, high = 0, len(sorted_array)
-    while low <= high:
+    while low < high:
         mid = int((high + low) / 2)
         itemc = key(sorted_array[mid])
         if itemc == item:

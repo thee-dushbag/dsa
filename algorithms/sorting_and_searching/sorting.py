@@ -1,14 +1,81 @@
 import typing as ty
 
+__all__ = "bubble_sort", "selection_sort", "insertion_sort", "insertion_sort_bst"
 
-def identity(item):
+
+def _identity(item):
     return item
 
 
 def bubble_sort(array: ty.MutableSequence, *, key=None):
-    key = identity if key is None else key
+    key = _identity if key is None else key
     size = len(array)
     for i in range(size):
         for j in range(size):
             if key(array[i]) < key(array[j]):
                 array[j], array[i] = array[i], array[j]
+
+
+def _select_next(array, start, end, key):
+    smallest = array[start]
+    smallest_index = start
+    while start < end:
+        item = array[start]
+        if key(item) < key(smallest):
+            smallest_index = start
+            smallest = item
+        start += 1
+    return smallest_index
+
+
+def selection_sort(array: ty.MutableSequence, *, key=None):
+    key = _identity if key is None else key
+    start, size = 0, len(array)
+    while start < size:
+        index = _select_next(array, start, size, key)
+        array.insert(start, array.pop(index))
+        start += 1
+
+
+def _insert_item(array, stop, key):
+    index, item = 0, array[stop]
+    while index <= stop:
+        sitem = array[index]
+        if key(sitem) >= key(item):
+            break
+        index += 1
+    return index
+
+
+def _insert_item_bst(array, stop, key):
+    item = key(array[stop])
+    low, high = 0, stop
+    while True:
+        mid = int((high + low) / 2)
+        current = key(array[mid])
+        if (high - low) <= 1:
+            return high if current < item else low
+        elif current == item:
+            return mid
+        elif current < item:
+            low = mid
+        else:
+            high = mid
+
+
+def _insertion_sort_impl(array, key, insertindex):
+    insertindex = _insert_item if insertindex is None else insertindex
+    key = _identity if key is None else key
+    start, size = 1, len(array)
+    while start < size:
+        index = insertindex(array, start, key)
+        array.insert(index, array.pop(start))
+        start += 1
+
+
+def insertion_sort(array: ty.MutableSequence, *, key=None):
+    _insertion_sort_impl(array, key=key, insertindex=_insert_item)
+
+
+def insertion_sort_bst(array: ty.MutableSequence, *, key=None):
+    _insertion_sort_impl(array, key=key, insertindex=_insert_item_bst)

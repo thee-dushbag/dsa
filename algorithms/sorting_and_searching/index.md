@@ -31,7 +31,15 @@ It needs the input array to be sorted. It works by dividing the array in two at 
 
 It is pretty fast as the time taken to find an item in the array is logarithmic to the size of the array.
 
+### Selection sort
+
+Start with an empty array and the array to be sorted, take the smallest element from the unsorted array and append it into the sorted array, do this until the unsorted array is empty and you will end up with a sorted array having all elements in descending order.
+
 ### Insertion sort
+
+This sorting strategy works by inserting an item in its correct index in a sorted array.
+First, you start with an empty array and the array to be sorted. Take an item from the unsorted array and find an index in the sorted array it would be if it way in that array then in insert it in there.
+This involves searching for an appropriate index, using binary search to find the index improves the speed of the algorithm by a big factor compared to using simple search.
 
 ### Merge sort
 
@@ -45,8 +53,10 @@ This algorithm sorts an array by bubbling up a value to its correct position. It
 
 ## Analysis
 
-| Algorithm     | Big-O     |
-| ------------- | --------- |
-| Binary Search | O(log(n)) |
-| Simple Search | O(n)      |
-| Bubble Sort   | O(n^2)    |
+| Algorithm      | Big-O     |
+| -------------- | --------- |
+| Binary Search  | O(log(n)) |
+| Simple Search  | O(n)      |
+| Bubble Sort    | O(n^2)    |
+| Inserting Sort | O(n^2)    |
+| Selection Sort | O(n^2)    |
