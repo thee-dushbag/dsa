@@ -68,7 +68,6 @@ class CircularDoublyList(ListABC[_T]):
             node.prev = target.prev
             node.next = target
             target.prev = node
-            print(index, target, node)
         if index == 0:
             self._head = self._head.prev
         self._size += 1

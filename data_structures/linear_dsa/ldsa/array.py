@@ -25,6 +25,12 @@ class Bucket(ty.Generic[T]):
     def __init__(self, value: Optional[T] = sentinel) -> None:
         self.value: Optional[T] = value
 
+    def empty(self) -> bool:
+        return self.value is sentinel
+
+    def clear(self):
+        self.value = sentinel
+
     def __str__(self) -> str:
         return f"Slot({self.value!r})"
 
@@ -62,3 +68,14 @@ class Array(ty.Generic[T]):
     def __reversed__(self):
         for index in range(self._size - 1, -1, -1):
             yield self._buckets[index].value
+
+    def grow(self, size: int):
+        if size > self._size:
+            diff = size - self._size
+            extras = [Bucket() for _ in range(diff)]
+            self._buckets.extend(extras)
+            self._size += diff
+
+    def clear(self):
+        for bucket in self._buckets:
+            bucket.clear()

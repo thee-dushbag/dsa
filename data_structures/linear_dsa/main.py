@@ -96,7 +96,6 @@ def _linked_list_seq_test(List):
         pylist.remove(4)
         mylist.remove(4)
     assert 4 not in mylist
-    print(pylist, list(mylist))
     assert pylist == list(mylist)
     del mylist[-1], pylist[-1]
     del mylist[0], pylist[0]
@@ -110,16 +109,12 @@ def _linked_list_seq_test(List):
     assert list(reversed(pylist)) == list(reversed(mylist))
     assert pylist.pop(3) == mylist.pop(3)
     value = 5000
-    print(pylist, list(mylist))
     pylist.insert(3, value)
     mylist.insert(3, value)
-    print(pylist, list(mylist))
     pylist.insert(0, value)
     mylist.insert(0, value)
-    print(pylist, list(mylist))
     pylist.insert(-1, value)
     mylist.insert(-1, value)
-    print(pylist, list(mylist))
     assert pylist == list(mylist)
     assert value in mylist
 
@@ -233,3 +228,20 @@ def test_array():
 
     for d, a in zip(reversed(data), reversed(arr)):
         assert d == a
+
+
+def test_hash_table():
+    from ldsa.hash_table import HashTable
+    from string import ascii_letters as letters
+    from random import choices
+
+    keys = ["".join(choices(letters, k=20)) for _ in range(100)]
+    values = ["".join(choices(letters, k=20)) for _ in range(100)]
+    items = list(zip(keys, values))
+    pydict = dict(items)
+    mydict = HashTable()
+    for key, value in items:
+        mydict[key] = value
+
+    for key, value in pydict.items():
+        assert mydict[key] == value

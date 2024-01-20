@@ -1,5 +1,4 @@
 import typing as ty
-from typing import Iterator
 from .node import ForwardNode
 from .abc import ListABC, NodeABC
 
@@ -7,7 +6,7 @@ _T = ty.TypeVar("_T")
 
 
 class SinglyList(ListABC[_T]):
-    def __init__(self, iterable: ty.Iterator[_T] | None = None, /) -> None:
+    def __init__(self, iterable: ty.Iterable[_T] | None = None, /) -> None:
         self._head: None | NodeABC[_T] = None
         self._size = 0
         if iterable is not None:
@@ -29,7 +28,7 @@ class SinglyList(ListABC[_T]):
                 return node
         raise IndexError
 
-    def __iter__(self) -> Iterator[NodeABC[_T]]:
+    def __iter__(self) -> ty.Iterator[NodeABC[_T]]:
         head = self._head
         while head is not None:
             yield head
@@ -83,5 +82,5 @@ class SinglyList(ListABC[_T]):
         self._size -= 1
         return target
 
-    def __reversed__(self) -> Iterator[NodeABC[_T]]:
+    def __reversed__(self) -> ty.Iterator[NodeABC[_T]]:
         return reversed(self)

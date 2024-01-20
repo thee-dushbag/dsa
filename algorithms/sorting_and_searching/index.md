@@ -45,6 +45,10 @@ This involves searching for an appropriate index, using binary search to find th
 
 ### Quick sort
 
+This sorting algorithm utilizes divide and conquer to sort really fast. First, it selects an item from the input array, probably the middle one, it creates three new arrays A, B and C where A will contain all items less than the chossen item, C all items greater than the chossen and B all equals.
+It calls itself again two times with A and C as inputs where the base case for recursion is an array with 1, 0 or 2 elements, it will sort the array with 2 elements before returning it.
+The results from input A and C are merged with B as `qsort(A) + B + qsort(B)`, which will result in the elements being sorted as this process is done again for A and C. The final output is a sorted array with all elements in the original array.
+
 ### Heap sort
 
 ### Bubble sort
@@ -53,10 +57,11 @@ This algorithm sorts an array by bubbling up a value to its correct position. It
 
 ## Analysis
 
-| Algorithm      | Big-O     |
-| -------------- | --------- |
-| Binary Search  | O(log(n)) |
-| Simple Search  | O(n)      |
-| Bubble Sort    | O(n^2)    |
-| Inserting Sort | O(n^2)    |
-| Selection Sort | O(n^2)    |
+| Algorithm      | Big-O        |
+| -------------- | ------------ |
+| Binary Search  | O(log(n))    |
+| Simple Search  | O(n)         |
+| Bubble Sort    | O(n^2)       |
+| Inserting Sort | O(n^2)       |
+| Selection Sort | O(n^2)       |
+| Quick Sort     | O(n\*log(n)) |

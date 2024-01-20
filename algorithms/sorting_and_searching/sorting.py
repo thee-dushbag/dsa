@@ -1,6 +1,12 @@
 import typing as ty
 
-__all__ = "bubble_sort", "selection_sort", "insertion_sort", "insertion_sort_bst"
+__all__ = (
+    "bubble_sort",
+    "selection_sort",
+    "insertion_sort",
+    "insertion_sort_bst",
+    "quick_sort",
+)
 
 
 def _identity(item):
@@ -79,3 +85,33 @@ def insertion_sort(array: ty.MutableSequence, *, key=None):
 
 def insertion_sort_bst(array: ty.MutableSequence, *, key=None):
     _insertion_sort_impl(array, key=key, insertindex=_insert_item_bst)
+
+
+def _partition_by(array: list, item, key):
+    low, high, middle = [], [], []
+    while array:
+        current = key(array.pop())
+        if current < item:
+            low.append(current)
+        elif current > item:
+            high.append(current)
+        else:
+            middle.append(current)
+    return low, middle, high
+
+
+def _quick_sort_impl(array: list, key=None):
+    size = len(array)
+    key = _identity if key is None else key
+    if size <= 1:
+        if size == 2:
+            if key(array[0]) > key(array[1]):
+                array[0], array[1] = array[1], array[0]
+        return array
+    mid_item = key(array[int(size / 2)])
+    low, middle, high = _partition_by(array, mid_item, key)
+    return _quick_sort_impl(low) + middle + _quick_sort_impl(high)
+
+
+def quick_sort(array: list, *, key=None):
+    array.extend(_quick_sort_impl(array, key=key))

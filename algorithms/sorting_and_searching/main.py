@@ -1,14 +1,14 @@
 import random as rd
 
-data_pool = list(range(1000))  # Sorted
+data_pool = list(range(1000, 4001))  # Sorted
 
 
 def _test_searching(searcher):
     for _ in range(50):
         tofind = rd.choice(data_pool)
         index = searcher(data_pool, tofind)  # Sorted input for BS
-        assert index == data_pool.index(tofind)
-    tofind = -1 # Not in array
+        assert index == tofind - 1000
+    tofind = -1  # Not in array
     assert searcher(data_pool, tofind) is None
 
 
@@ -43,6 +43,12 @@ def test_bubble_sort():
     from sorting import bubble_sort
 
     _test_sorting(bubble_sort)
+
+
+def test_quick_sort():
+    from sorting import quick_sort
+
+    _test_sorting(quick_sort)
 
 
 def test_binary_search():

@@ -9,15 +9,15 @@ __all__ = "SinglyLinkedList", "CirDoublyLinkedList", "DoublyLinkedList"
 
 
 class SinglyLinkedList(_MutableSequenceMixin[_T]):
-    def __init__(self, iterable: ty.Iterator[_T] | None = None, /) -> None:
+    def __init__(self, iterable: ty.Iterable[_T] | None = None, /) -> None:
         super().__init__(_SinglyList(iterable))
 
 
 class DoublyLinkedList(_MutableSequenceMixin[_T]):
-    def __init__(self, iterable: ty.Iterator[_T] | None = None, /) -> None:
+    def __init__(self, iterable: ty.Iterable[_T] | None = None, /) -> None:
         super().__init__(_DoublyList(iterable))
 
 
 class CirDoublyLinkedList(_MutableSequenceMixin[_T]):
-    def __init__(self, iterable: ty.Iterator[_T] | None = None, /) -> None:
+    def __init__(self, iterable: ty.Iterable[_T] | None = None, /) -> None:
         super().__init__(_CircularDoublyList(iterable))
