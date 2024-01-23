@@ -230,18 +230,38 @@ def test_array():
         assert d == a
 
 
-def test_hash_table():
-    from ldsa.hash_table import HashTable
-    from string import ascii_letters as letters
-    from random import choices
+def test_set():
+    from ldsa.set import Set
 
-    keys = ["".join(choices(letters, k=20)) for _ in range(100)]
-    values = ["".join(choices(letters, k=20)) for _ in range(100)]
-    items = list(zip(keys, values))
-    pydict = dict(items)
-    mydict = HashTable()
-    for key, value in items:
-        mydict[key] = value
+    s = Set()
+    s.add("Simon")
+    s.add("Nganga")
+    s.add("Njoroge")
+    s.add("Simon")
+    assert "Simon" in s
+    assert "Faith" not in s
+    items = ["Nganga", "Njoroge", "Simon"]
+    assert sorted(s) == items
 
-    for key, value in pydict.items():
-        assert mydict[key] == value
+    for item in map(str, range(15)):
+        items.append(item)
+        s.add(item)
+
+    assert sorted(s) == sorted(items)
+
+    for torm in map(str, [1, 2, 3, 4]):
+        items.remove(torm)
+        s.remove(torm)
+
+    assert sorted(s) == sorted(items)
+
+    with pytest.raises(ValueError):
+        s.remove("NotInHere")
+
+    with pytest.raises(TypeError):
+
+        class UnHashable:
+            ...
+
+        val = UnHashable()
+        s.add(val)

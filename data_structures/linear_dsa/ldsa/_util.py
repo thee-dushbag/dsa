@@ -16,6 +16,11 @@ class Node(ty.Generic[T]):
         self.prev = None
         return self
 
+    def __str__(self) -> str:
+        return f"Node({self.value!r})"
+
+    __repr__ = __str__
+
 
 class SimpleLinkedList(ty.Generic[T]):
     def __init__(self, iterable: ty.Iterable[Node[T]] | None = None) -> None:
@@ -31,6 +36,7 @@ class SimpleLinkedList(ty.Generic[T]):
             self._tail = node
         else:
             node.prev = self._tail
+            self._tail.next = node
             self._tail = node
 
     def _appendleft(self, node: Node[T]):
@@ -39,6 +45,7 @@ class SimpleLinkedList(ty.Generic[T]):
             self._tail = node
         else:
             node.next = self._head
+            self._head.prev = node
             self._head = node
 
     def _pop(self):
@@ -102,6 +109,11 @@ class SimpleLinkedList(ty.Generic[T]):
 
     def _remove(self, index: int):
         node = self.getnode(index)
+        if node is not None:
+            if node is self._head:
+                self._head = node.next
+            if node is self._tail:
+                self._tail = node.prev
         if node.prev is not None:
             node.prev.next = node.next
         if node.next is not None:
@@ -166,6 +178,9 @@ class ValueList(ty.Generic[T]):
                 return node.value
         raise ValueError
 
+    def delvalue(self, index: int) -> T:
+        return self._list.remove(index).value
+
     def _iter(self, iterable: ty.Iterable[Node[T]]) -> ty.Generator[T, None, None]:
         for node in iterable:
             yield node.value
@@ -176,6 +191,63 @@ class ValueList(ty.Generic[T]):
     def __reversed__(self) -> ty.Generator[T, None, None]:
         return self._iter(reversed(self._list))
 
+    def __str__(self) -> str:
+        vals = ", ".join(map(repr, self._list))
+        return "[" + vals + "]"
+
+    __repr__ = __str__
+
+
+class Slot(ty.Generic[T]):
+    def __init__(self, value: T) -> None:
+        self.value = value
+
+    def __str__(self) -> str:
+        return str(self.value)
+
+    def __repr__(self) -> str:
+        return f"Slot({self.value!r})"
+
+
+class Array(ty.Generic[T]):
+    def __init__(self, size: int) -> None:
+        assert isinstance(size, int) and size >= 0
+        self._list: list[Slot[T]] = []
+        self._size = 0
+        self._grow(size)
+
+    def _grow(self, size: int):
+        init = ty.cast(T, None)
+        slots = [Slot(init) for _ in range(size)]
+        self._list.extend(slots)
+        self._size += size
+
+    def __setitem__(self, index: int, value: T):
+        self._list[index].value = value
+
+    def __getitem__(self, index: int) -> T:
+        return self._list[index].value
+
+    def fill(self, creator: ty.Callable[[], T]):
+        for slot in self._list:
+            slot.value = creator()
+
+    def clear(self):
+        self.fill(lambda: ty.cast(T, None))
+
+    def _iter(self, iterable: ty.Iterable[Slot[T]]) -> ty.Generator[T, None, None]:
+        for slot in iterable:
+            yield slot.value
+
+    def __iter__(self) -> ty.Generator[T, None, None]:
+        return self._iter(self._list)
+
+    def __reversed__(self) -> ty.Generator[T, None, None]:
+        return self._iter(reversed(self._list))
+
+    def __len__(self) -> int:
+        return self._size
+
 
 @ty.runtime_checkable
 class Hashable(ty.Protocol):
@@ -183,13 +255,13 @@ class Hashable(ty.Protocol):
         ...
 
 
-_T = ty.TypeVar("_T", str, int, float, bytes, Hashable)
+_HashableType = ty.TypeVar("_HashableType", str, int, float, bytes, Hashable)
 
 
 def _myhash_function(value: float | int | bytes | str, *, shift: int = 2):
     if not isinstance(value, (str, float, bytes, int)):
-        raise Exception(
-            "Unhashable value. Expected float, int, "
+        raise TypeError(
+            "Unhashable type. Expected float, int, "
             f"str or bytes, got {type(value).__name__}"
         )
     hash_value = 1
@@ -205,7 +277,7 @@ def _myhash_function(value: float | int | bytes | str, *, shift: int = 2):
     return hash_value
 
 
-def myhash(hashable: _T, /) -> int:
+def myhash(hashable: _HashableType, /) -> int:
     if isinstance(hashable, Hashable):
         hash_value = hashable.__myhash__()
         assert isinstance(

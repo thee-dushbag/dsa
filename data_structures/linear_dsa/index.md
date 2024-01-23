@@ -9,6 +9,7 @@ There are multiple linear data structures, they are.
 - [Array](#array)
 - [Linked List](#linked-list)
 - [Heap](#heap)
+- [Set](#set)
 - [Hash Table](#hash-table)
 - [Fibbonacci Heap](#fibbonacci-heap)
 
@@ -107,6 +108,18 @@ Operations that can be done on a heap include:
 ###### Implementations
 
 - [**Python**](./ldsa/heap.py)
+
+### Set
+
+A set is a data structure that stores data in a way that can be accessed in contant time.
+Unlike a list or other collections, it cannot store duplicates. It uses hashing to know where to store and find a value in the array it uses as the container. By hashing a value to some unique hash value, an integer, we can compute the appropriate index where the value should go or can be found if it is in the set.
+In the case of collisions, we can create a linked list on the slot where the collision happened and chain the values there, allocate more space in the array if this list grows too long.
+
+###### Analysis
+
+###### Implementations
+
+- [**Python**](./ldsa/set.py)
 
 ### Hash Table
 
