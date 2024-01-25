@@ -185,6 +185,9 @@ class ValueList(ty.Generic[T]):
         for node in iterable:
             yield node.value
 
+    def __len__(self) -> int:
+        return self._list._size
+
     def __iter__(self) -> ty.Generator[T, None, None]:
         return self._iter(self._list)
 
