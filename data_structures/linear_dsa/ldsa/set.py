@@ -91,6 +91,9 @@ class Set(ty.MutableSet[_ValueType]):
         vals = ", ".join(map(repr, self))
         return "{" + vals + "}"
 
+    def __len__(self) -> int:
+        return self._size
+
     def __iter__(self) -> ty.Generator[_ValueType, None, None]:
         for vlist in self._store:
             yield from vlist
