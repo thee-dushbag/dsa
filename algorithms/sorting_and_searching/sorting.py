@@ -1,4 +1,4 @@
-import typing as ty
+import typing as ty, heapq as _hq
 
 __all__ = (
     "bubble_sort",
@@ -115,3 +115,28 @@ def _quick_sort_impl(array: list, key=None):
 
 def quick_sort(array: list, *, key=None):
     array.extend(_quick_sort_impl(array, key=key))
+
+
+class _RichCmp:
+    def __init__(self, item, key) -> None:
+        self._item = item
+        self._key = key
+
+    def __eq__(self, other):
+        return self._key == other._key
+
+    def __lt__(self, other):
+        return self._key < other._key
+
+
+def _heap_sort(heap: list):
+    _hq.heapify(heap)
+    while heap:
+        yield _hq.heappop(heap)
+
+
+def heap_sort(array: list, *, key=None):
+    key = _identity if key is None else key
+    heap = [_RichCmp(i, key(i)) for i in array]
+    array.clear()
+    array.extend(r._item for r in _heap_sort(heap))

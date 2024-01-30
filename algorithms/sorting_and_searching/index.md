@@ -51,6 +51,11 @@ The results from input A and C are merged with B as `qsort(A) + B + qsort(B)`, w
 
 ### Heap sort
 
+This is a fast algorithm that utilizes heap property to sort a sequence of data. For a `min-heap`, the most minimum element is at the root and popping it off takes `log(n)` steps, which is one of the reasons for its speed. The most expensive operations is heapification of the sequence, to sort, we just keep popping the most minimum element while adding it to a sorted array. By the end of the operation, you will end up with a sorted array.
+
+For the BigO analysis, I will look it up, for now, I have filled in my guess.  
+By the way, I did some simple speedtest on the sorting algorithms, quick sort vs heap sort and heap sort emerged as the winner, hence my guess.
+
 ### Bubble sort
 
 This algorithm sorts an array by bubbling up a value to its correct position. It does this for all items in the array leading to `size * size` comparisons. This does not scale very well for large arrays.
@@ -65,3 +70,4 @@ This algorithm sorts an array by bubbling up a value to its correct position. It
 | Inserting Sort | O(n^2)       |
 | Selection Sort | O(n^2)       |
 | Quick Sort     | O(n\*log(n)) |
+| Heap Sort      | O(n\*log(n)) |

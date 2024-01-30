@@ -144,7 +144,8 @@ class HashTable(ty.MutableMapping[_KeyType, _ValueType]):
             self._setitem(key, value)  # type: ignore
 
     def popitem(self) -> tuple[_KeyType, _ValueType]:
-        for key, value in self.items():
+        for key in self.keys():
+            value = ty.cast(_ValueType, self.pop(key))
             return key, value
         raise KeyError("Dictionary is empty.")
 
@@ -152,6 +153,12 @@ class HashTable(ty.MutableMapping[_KeyType, _ValueType]):
         self._store.clear()
         self._store.fill(ValueList)
         self._used = 0
+
+    def __str__(self) -> str:
+        items = [f"{key!r}: {value:!r}" for key, value in self.items()]
+        return "{" + ", ".join(items) + "}"
+
+    __repr__ = __str__
 
     @property
     def _size(self) -> int:

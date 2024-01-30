@@ -61,3 +61,9 @@ def test_simple_search():
     from searching import simple_search
 
     _test_searching(simple_search)  # Not Much Effect if Array is Sorted
+
+
+def test_heap_sort():
+    from sorting import heap_sort
+
+    _test_sorting(heap_sort)

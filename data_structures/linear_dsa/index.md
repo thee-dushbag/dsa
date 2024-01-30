@@ -123,6 +123,14 @@ In the case of collisions, we can create a linked list on the slot where the col
 
 ### Hash Table
 
+This is pretty similar to the set except that, instead of hashing the value, we hash some key that produces an index where we can store the value. With this, we get an association of the key to a value. With some key, you can lookup a value in the hash table.
+
+###### Analysis
+
+###### Implementations
+
+- [**Python**](./ldsa/hash_table.py)
+
 ### Fibbonacci Heap
 
 [linked_list_picture]: /assets/linked-list-dsa-picture.jpg
