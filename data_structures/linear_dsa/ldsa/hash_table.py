@@ -2,12 +2,17 @@ from ._util import ValueList, myhash, Hashable, Array
 import typing as ty
 
 _KeyType = ty.TypeVar("_KeyType", str, int, float, bytes, Hashable)
+_U = ty.TypeVar("_U", str, int, float, bytes, Hashable)
 _ValueType = ty.TypeVar("_ValueType")
 _T = ty.TypeVar("_T")
 
 
 class _MISSING:
     ...
+
+
+def _identity(item: _T) -> _T:
+    return item
 
 
 _missing = _MISSING()
@@ -91,10 +96,13 @@ class HashTable(ty.MutableMapping[_KeyType, _ValueType]):
         return value
 
     def _iter(
-        self, transform: ty.Callable[[KeyValueNode[_KeyType, _ValueType]], _T]
+        self,
+        transform: ty.Callable[[KeyValueNode[_KeyType, _ValueType]], _T],
+        prep_store=_identity,
+        prep_vlist=_identity,
     ) -> ty.Generator[_T, None, None]:
-        for vlist in self._store:
-            for slot in vlist:
+        for vlist in prep_store(self._store):
+            for slot in prep_vlist(vlist):
                 yield transform(slot)
 
     def values(self) -> ty.Generator[_ValueType, None, None]:
@@ -107,6 +115,9 @@ class HashTable(ty.MutableMapping[_KeyType, _ValueType]):
         return self._iter(lambda slot: (slot.key, slot.value))
 
     __iter__ = keys
+
+    def __reversed__(self) -> ty.Generator[_ValueType, None, None]:
+        return self._iter(lambda slot: slot.value, reversed, reversed)
 
     def __setitem__(self, key: _KeyType, value: _ValueType) -> None:
         self._setitem(key, value)
@@ -139,13 +150,13 @@ class HashTable(ty.MutableMapping[_KeyType, _ValueType]):
         other: "HashTable[_KeyType, _ValueType] | ty.Iterable[tuple[_KeyType, _ValueType]]",
     ):
         iterable = other.items() if isinstance(other, HashTable) else other
-
         for key, value in iterable:
             self._setitem(key, value)  # type: ignore
 
     def popitem(self) -> tuple[_KeyType, _ValueType]:
-        for key in self.keys():
-            value = ty.cast(_ValueType, self.pop(key))
+        rev_items = self._iter(lambda s: (s.key, s.value), reversed, reversed)
+        for key, value in rev_items:
+            self.pop(key)
             return key, value
         raise KeyError("Dictionary is empty.")
 
@@ -155,7 +166,7 @@ class HashTable(ty.MutableMapping[_KeyType, _ValueType]):
         self._used = 0
 
     def __str__(self) -> str:
-        items = [f"{key!r}: {value:!r}" for key, value in self.items()]
+        items = [f"{key!r}: {value!r}" for key, value in self.items()]
         return "{" + ", ".join(items) + "}"
 
     __repr__ = __str__
@@ -175,3 +186,12 @@ class HashTable(ty.MutableMapping[_KeyType, _ValueType]):
         self._store._grow(self._size)
         self.clear()
         self.update(values)
+
+    @classmethod
+    def fromkeys(
+        cls: type['HashTable[_U, _T]'],
+        iterable: ty.Iterable[_U],
+        value: _T | _MISSING = _missing,
+    ) -> "HashTable[_U, _T]":
+        value = ty.cast(_T, None) if isinstance(value, _MISSING) else value
+        return cls(map(lambda key: (key, value), iterable))

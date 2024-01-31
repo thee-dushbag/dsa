@@ -109,11 +109,10 @@ class SimpleLinkedList(ty.Generic[T]):
 
     def _remove(self, index: int):
         node = self.getnode(index)
-        if node is not None:
-            if node is self._head:
-                self._head = node.next
-            if node is self._tail:
-                self._tail = node.prev
+        if node is self._head:
+            self._head = node.next
+        if node is self._tail:
+            self._tail = node.prev
         if node.prev is not None:
             node.prev.next = node.next
         if node.next is not None:
@@ -214,7 +213,7 @@ class Slot(ty.Generic[T]):
 
 class Array(ty.Generic[T]):
     def __init__(self, size: int) -> None:
-        assert isinstance(size, int) and size >= 0
+        assert isinstance(size, int) and size >= 0, size
         self._list: list[Slot[T]] = []
         self._size = 0
         self._grow(size)

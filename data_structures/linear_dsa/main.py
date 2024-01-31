@@ -285,7 +285,6 @@ def test_hashtable():
     mydict = HashTable(data)
 
     assert pydict == dict(mydict.items())
-
     assert pydict["sister"] == mydict["sister"]
 
     del pydict["brother"]
@@ -309,3 +308,15 @@ def test_hashtable():
     assert pydict == dict(mydict.items())
     assert set(pydict.values()) == set(mydict.values())
     assert set(pydict.keys()) == set(mydict.keys())
+
+    def kwargs(**data) -> set[str]:
+        return set(data.keys())
+
+    assert kwargs(**pydict) == kwargs(**mydict)
+    pydata, mydata = set(), set()
+    while pydict and mydict:
+        pydata.add(pydict.popitem())
+        mydata.add(mydict.popitem())
+
+    assert pydata == mydata
+    assert len(pydict) == 0 and len(mydict) == 0
