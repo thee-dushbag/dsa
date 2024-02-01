@@ -46,9 +46,8 @@ class Set(ty.MutableSet[_ValueType]):
         vlist = self._store[index]
         for _value in vlist:
             if myhash(_value) == _hash:
-                break
-        else:
-            vlist.append(value)
+                return
+        vlist.append(value)
         self._used += 1
         self._stabilize()
 
@@ -66,20 +65,37 @@ class Set(ty.MutableSet[_ValueType]):
         self._used -= self._remove(value)
 
     def remove(self, value: _ValueType):
-        if self._remove(value):
-            self._used -= 1
-        else:
-            raise KeyError
+        if not self._remove(value):
+            raise ValueError(value)
+        self._used -= 1
 
     def pop(self) -> _ValueType:
         for value in self:
             self.remove(value)
             return value
-        raise KeyError("pop from an empty set.")
+        raise ValueError("pop from an empty set.")
 
     def clear(self) -> None:
         self._store.fill(ValueList)
         self._used = 0
+
+    def union(self, other: "ty.AbstractSet[_ValueType]") -> "Set[_ValueType]":
+        return Set([*self, *other])
+
+    def intersection(self, other: "ty.AbstractSet[_ValueType]") -> "Set[_ValueType]":
+        return Set([item for item in self if item in other])
+
+    def difference(self, other: "ty.AbstractSet[_ValueType]") -> "Set[_ValueType]":
+        return Set([item for item in self if item not in self.intersection(other)])
+
+    def __eq__(self, other: ty.AbstractSet[_ValueType]) -> bool:
+        return all(item in other for item in self) and all(
+            item in self for item in other
+        )
+
+    __and__ = intersection
+    __sub__ = difference
+    __or__ = __add__ = union
 
     def __contains__(self, x: object) -> bool:
         return self.contains(x)
@@ -92,7 +108,7 @@ class Set(ty.MutableSet[_ValueType]):
         return "{" + vals + "}"
 
     def __len__(self) -> int:
-        return self._size
+        return self._used
 
     def __iter__(self) -> ty.Generator[_ValueType, None, None]:
         for vlist in self._store:

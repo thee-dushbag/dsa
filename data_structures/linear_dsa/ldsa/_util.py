@@ -268,7 +268,7 @@ def _myhash_function(value: float | int | bytes | str, *, shift: int = 2):
         )
     hash_value = 1
     if isinstance(value, (float, int)):
-        value = str(value).encode()
+        value = str(float(value)).encode()
         hash_value = 2
     elif isinstance(value, str):
         value = value.encode()

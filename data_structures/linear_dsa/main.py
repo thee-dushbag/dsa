@@ -231,10 +231,6 @@ def test_array():
 
 
 def test_set():
-    """
-    NOT FINISHED WITH THE SET FOR NOW
-    """
-    return
     from ldsa.set import Set
 
     s = Set()
@@ -269,6 +265,19 @@ def test_set():
 
         val = UnHashable()
         s.add(val)
+
+    s1, s2 = Set(["A", "B", "C"]), Set(["B", "D", "E"])
+    # Same as s1.union(s2)
+    assert sorted(s1 | s2) == ["A", "B", "C", "D", "E"]
+    # Same as s1.difference(s2)
+    assert sorted(s1 - s2) == ["A", "C"]
+    # Same as s2.difference(s1)
+    assert sorted(s2 - s1) == ["D", "E"]
+    # Same as s1.intersection(s2)
+    assert sorted(s1 & s2) == ["B"]
+    
+    t1: Set = Set(['A', b'A', 1.00, 1])
+    assert set(t1) == set([1.0, 'A', b'A']) and len(t1) == 3
 
 
 def test_hashtable():
