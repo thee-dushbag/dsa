@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 import typing as ty
 
-T = ty.TypeVar('T')
+T = ty.TypeVar("T")
+
 
 @dataclass
 class Node(ty.Generic[T]):
