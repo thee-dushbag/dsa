@@ -10,20 +10,18 @@ def _identity(item):
 
 def simple_search(array: ty.Sequence, item, *, key=None) -> None | int:
     key = _identity if key is None else key
-    for index, itemc in enumerate(array):
-        if item == key(itemc):
-            return index
+    for index, itemc in enumerate(map(key, array)):
+        if item == itemc: return index
 
 
 def binary_search(sorted_array: ty.Sequence, item, *, key=None):
     key = _identity if key is None else key
-    low, high = 0, len(sorted_array)
+    low, high, item = 0, len(sorted_array), key(item)
     while low < high:
         mid = int((high + low) / 2)
         itemc = key(sorted_array[mid])
-        if itemc == item:
-            return mid
-        elif item > itemc:
-            low = mid
-        elif item < itemc:
-            high = mid
+        prev = low, high
+        if itemc == item: return mid
+        elif itemc > item: high = mid
+        else: low = mid
+        if prev == (low, high): break

@@ -8,22 +8,22 @@ _CompareF = ty.Callable[[_T, _T], bool]
 
 # Hail MYPY, bloody bastard!!!
 class _LTComparisson(ty.Protocol):
-    def __lt__(self: ty.Self, value: ty.Self) -> bool:
+    def __lt__(self: ty.Self, value: ty.Any) -> bool:
         ...
 
 
 class _GTComparisson(ty.Protocol):
-    def __gt__(self: ty.Self, value: ty.Self) -> bool:
+    def __gt__(self: ty.Self, value: ty.Any) -> bool:
         ...
 
 
 class _LEComparisson(ty.Protocol):
-    def __le__(self: ty.Self, value: ty.Self) -> bool:
+    def __le__(self: ty.Self, value: ty.Any) -> bool:
         ...
 
 
 class _GEComparisson(ty.Protocol):
-    def __ge__(self: ty.Self, value: ty.Self) -> bool:
+    def __ge__(self: ty.Self, value: ty.Any) -> bool:
         ...
 
 
@@ -95,7 +95,7 @@ def getheaptype() -> HeapType:
 
 def heapify(heap: ty.MutableSequence, heap_type: ty.Optional[HeapType] = None) -> None:
     """
-    Convert a mutable sequence (eq list) to a heap
+    Convert a mutable sequence (eg list) to a heap
     (MIN-HEAP default or specify using param heap_type)
     """
     comparer, size = _cmp_heap_type_map[heap_type or _default_heap_type], len(heap)

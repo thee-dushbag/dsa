@@ -114,7 +114,7 @@ def _quick_sort_impl(array: list, key=None):
 
 
 def quick_sort(array: list, *, key=None):
-    array.extend(_quick_sort_impl(array, key=key))
+    array[:] = _quick_sort_impl(array, key=key)
 
 
 class _RichCmp:
@@ -138,5 +138,4 @@ def _heap_sort(heap: list):
 def heap_sort(array: list, *, key=None):
     key = _identity if key is None else key
     heap = [_RichCmp(i, key(i)) for i in array]
-    array.clear()
-    array.extend(r._item for r in _heap_sort(heap))
+    array[:] = (r._item for r in _heap_sort(heap))

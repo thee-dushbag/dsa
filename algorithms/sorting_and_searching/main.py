@@ -1,19 +1,20 @@
 import random as rd
 
-data_pool = list(range(1000, 4001))  # Sorted
+offset = 17
+data_pool = list(range(offset, 10000))  # Sorted
 
 
 def _test_searching(searcher):
     for _ in range(50):
         tofind = rd.choice(data_pool)
         index = searcher(data_pool, tofind)  # Sorted input for BS
-        assert index == tofind - 1000
+        assert index == tofind - offset
     tofind = -1  # Not in array
     assert searcher(data_pool, tofind) is None
 
 
 def _test_sorting(sorter):
-    for _ in range(50):
+    for _ in range(250):
         # Hopefully, this is enough a test
         data = rd.choices(data_pool, k=250)
         sorted_data = sorted(data)  # Create a new sorted list
@@ -67,3 +68,11 @@ def test_heap_sort():
     from sorting import heap_sort
 
     _test_sorting(heap_sort)
+
+
+def test_bst_edge1():
+    from searching import binary_search
+
+    data = [1, 2, 3, 5, 6, 7, 8, 9, 10]
+    index = binary_search(data, 4)
+    assert index is None, index
