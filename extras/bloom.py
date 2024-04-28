@@ -30,7 +30,10 @@ import pool
 import mhash
 
 
-def bit_hashes(clamp_shift: tuple[int, int], *clamp_shifts: tuple[int, int]):
+def bit_hashes(
+    hasher: mhash.Hasher | None,
+    clamp_shifts: tuple[tuple[int, int], ...],
+):
     """
     Create a hash function that turns on N bits
     at indices streamed by the hash function returned.
@@ -41,8 +44,8 @@ def bit_hashes(clamp_shift: tuple[int, int], *clamp_shifts: tuple[int, int]):
         value: mhash.Hashable, bit_count: int
     ) -> ty.Generator[int, None, None]:
         hashes = (
-            mhash.hash(value, clamp, shift)
-            for clamp, shift in (clamp_shift, *clamp_shifts)
+            mhash.hash(value, clamp, shift, hasher=hasher)
+            for clamp, shift in clamp_shifts
         )
         return (h % bit_count for h in hashes)
 
@@ -71,12 +74,14 @@ class BloomFilter(BloomFilterABC):
     def __init__(
         self,
         pool: pool.BitPool,
+        hasher: mhash.Hasher | None = None,
         clamp_shifts: tuple[tuple[int, int], ...] | None = None,
     ) -> None:
         self._pool = pool
         if clamp_shifts is None:
             clamp_shifts = self.clamp_shifts
-        self._bit_hash = bit_hashes(*clamp_shifts)
+        assert clamp_shifts, 'Must provide atleast one clamp_shift pair'
+        self._bit_hash = bit_hashes(hasher, clamp_shifts)
         self._max_markers = len(clamp_shifts)
         self._size_hint = 0
 

@@ -5,9 +5,23 @@ class BitPool(ty.Protocol):
     def flip_bit(self, index: int) -> bool: ...
     def read_bit(self, index: int) -> bool: ...
     def write_bit(self, index: int, value: bool): ...
-    def flip_bits(self, indices: ty.Iterable[int]) -> ty.Iterable[bool]: ...
-    def read_bits(self, indices: ty.Iterable[int]) -> ty.Iterable[bool]: ...
+    def flip_bits(self, indices: ty.Iterable[int]) -> list[bool]:
+        """
+        Cannot be lazy, since it has side effects which must
+        be executed instantly for the pool to be deterministic.
+        """
+        ...
+
+    def read_bits(self, indices: ty.Iterable[int]) -> ty.Iterable[bool]:
+        """
+        Can be lazy, expand to get instant bit values or
+        be sure the pool will not be altered as you read the bit values.
+        """
+        ...
+
     def write_bits(self, indices: ty.Iterable[tuple[int, bool]]): ...
+    def write_ones(self, indices: ty.Iterable[int]): ...
+    def write_zeros(self, indices: ty.Iterable[int]): ...
     @property
     def used(self) -> int: ...
     @property
@@ -17,11 +31,13 @@ class BitPool(ty.Protocol):
 
 class _BitPoolMixin:
     _size: int
-    used: property
+
+    @property
+    def used(self) -> int:
+        raise NotImplementedError
 
     def _to_str(self) -> str:
-        name = self.__class__.__name__
-        raise NotImplementedError("%s did not implement %s._to_str()" % (name, name))
+        raise NotImplementedError
 
     @property
     def size(self) -> int:
@@ -51,6 +67,18 @@ class _BitPoolMixin:
             f"<{name}(used={self.used} size={self._size} {capcity=:.3f}% {value=!r})>"
         )
 
+    def write_bits(self, indices: ty.Iterable[tuple[int, bool]]) -> None:
+        raise NotImplementedError
+
+    def _write_bits(self, indices: ty.Iterable[int], value: bool):
+        self.write_bits(map(lambda i: (i, value), indices))
+
+    def write_ones(self, indices: ty.Iterable[int]):
+        self._write_bits(indices, True)
+
+    def write_zeros(self, indices: ty.Iterable[int]):
+        self._write_bits(indices, False)
+
 
 class IntegerBitPool(_BitPoolMixin, BitPool):
     def __init__(self, size: int) -> None:
@@ -66,13 +94,13 @@ class IntegerBitPool(_BitPoolMixin, BitPool):
         self._pool |= 1 << index
 
     def _write_0(self, index: int):
-        self._pool ^= self._pool & (1 << index)
+        self._pool ^= self._pool & 1 << index
 
     def _write(self, index: int, value: bool):
         (self._write_1 if value else self._write_0)(index)
 
     def _read(self, index: int) -> bool:
-        return bool((self._pool >> index) & 1)
+        return bool(self._pool >> index & 1)
 
     def _flip(self, index: int) -> bool:
         new_value = not self._read(index)
@@ -88,10 +116,11 @@ class IntegerBitPool(_BitPoolMixin, BitPool):
             self._write(index, value)
 
     def read_bits(self, indices: ty.Iterable[int]) -> ty.Iterable[bool]:
+        "This is lazy, expand to get instant bit values."
         valid_indices = map(self._valid_index, indices)
-        return (self._read(index) for index in valid_indices)
+        return map(self._read, valid_indices)
 
-    def flip_bits(self, indices: ty.Iterable[int]) -> ty.Iterable[bool]:
+    def flip_bits(self, indices: ty.Iterable[int]) -> list[bool]:
         valid_indices = map(self._valid_index, indices)
         return [self._flip(index) for index in valid_indices]
 
@@ -123,13 +152,13 @@ class BytesBitPool(_BitPoolMixin, BitPool):
         self._pool[slot] |= 1 << offset
 
     def _write_0(self, slot: int, offset: int):
-        self._pool[slot] ^= self._pool[slot] & (1 << offset)
+        self._pool[slot] ^= self._pool[slot] & 1 << offset
 
     def _write(self, slot: int, offset: int, value: bool):
         (self._write_1 if value else self._write_0)(slot, offset)
 
-    def _read(self, slot: int, offset: int):
-        return bool((self._pool[slot] >> offset) & 1)
+    def _read(self, slot: int, offset: int) -> bool:
+        return bool(self._pool[slot] >> offset & 1)
 
     def _flip(self, slot: int, offset: int):
         new_value = not self._read(slot, offset)
@@ -146,11 +175,12 @@ class BytesBitPool(_BitPoolMixin, BitPool):
             self._write(slot, offset, value)
 
     def read_bits(self, indices: ty.Iterable[int]) -> ty.Iterable[bool]:
+        "Expand to get instant bit values. Lazy by default."
         valid_indices = map(self._valid_index, indices)
         slot_offsets = map(self._idx2pos, valid_indices)
         return (self._read(slot, offset) for slot, offset in slot_offsets)
 
-    def flip_bits(self, indices: ty.Iterable[int]) -> ty.Iterable[bool]:
+    def flip_bits(self, indices: ty.Iterable[int]) -> list[bool]:
         valid_indices = map(self._valid_index, indices)
         slot_offsets = map(self._idx2pos, valid_indices)
         return [self._flip(slot, offset) for slot, offset in slot_offsets]
