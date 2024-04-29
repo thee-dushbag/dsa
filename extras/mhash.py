@@ -13,7 +13,8 @@ def _to_bytes(value: int) -> bytes:
 
 def mmh3_hasher(value: ty.Iterable[int], seed: int, clamp: int, shift: int) -> int:
     seed *= clamp * shift
-    from mmh3 import hash128
+    # mypy not finding `mmh3` stub files
+    from mmh3 import hash128 # type: ignore
 
     return hash128(bytes(value), seed=seed)
 

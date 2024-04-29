@@ -26,7 +26,7 @@ to embark on the processing journey.
 """
 
 import typing as ty
-import pool
+import pool.abc
 import mhash
 
 
@@ -57,7 +57,7 @@ class BloomFilterABC(ty.Protocol):
     def add(self, value: mhash.Hashable): ...
     def has(self, value: mhash.Hashable) -> bool: ...
     @property
-    def pool(self) -> pool.BitPool: ...
+    def pool(self) -> pool.abc.BitPoolABC: ...
     @property
     def max_markers(self) -> int: ...
     @property
@@ -73,14 +73,14 @@ class BloomFilter(BloomFilterABC):
 
     def __init__(
         self,
-        pool: pool.BitPool,
+        pool: pool.abc.BitPoolABC,
         hasher: mhash.Hasher | None = None,
         clamp_shifts: tuple[tuple[int, int], ...] | None = None,
     ) -> None:
         self._pool = pool
         if clamp_shifts is None:
             clamp_shifts = self.clamp_shifts
-        assert clamp_shifts, 'Must provide atleast one clamp_shift pair'
+        assert clamp_shifts, "Must provide atleast one clamp_shift pair"
         self._bit_hash = bit_hashes(hasher, clamp_shifts)
         self._max_markers = len(clamp_shifts)
         self._size_hint = 0
@@ -89,7 +89,7 @@ class BloomFilter(BloomFilterABC):
         return self._bit_hash(value, self._pool.size)
 
     @property
-    def pool(self) -> pool.BitPool:
+    def pool(self) -> pool.abc.BitPoolABC:
         return self._pool
 
     @property
@@ -112,7 +112,7 @@ class BloomFilter(BloomFilterABC):
 
         h1, h2 = tee(self._hash(value))
         self._size_hint += not self._has(h1)
-        self._pool.write_bits(map(lambda i: (i, True), h2))
+        self._pool.write_bits(map(lambda i: (i, True), h1))
 
     def extend(self, values: ty.Iterable[mhash.Hashable]):
         from itertools import chain, tee
