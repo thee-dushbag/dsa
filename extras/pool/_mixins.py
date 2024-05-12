@@ -8,12 +8,10 @@ class UsedSizeABCMixin:
         # Used by other Mixins to represent
         # an object with properties size and used
         @property
-        def size(self) -> int:
-            raise NotImplementedError
+        def size(self) -> int: ...
 
         @property
-        def used(self) -> int:
-            raise NotImplementedError
+        def used(self) -> int: ...
 
 
 class StrReprMixin(UsedSizeABCMixin):
@@ -165,7 +163,7 @@ class ValidIndexMixin(UsedSizeABCMixin):
     def _valid_index(self, index: int) -> int:
         if -self.size <= index < self.size:
             return index % self.size
-        msg = "Out of range (-%r,%r), got %r"
+        msg = "Out of range [-%r,%r), got %r"
         raise IndexError(msg % (self.size, self.size, index))
 
 

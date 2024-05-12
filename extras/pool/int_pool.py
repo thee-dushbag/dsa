@@ -4,7 +4,8 @@ import typing as ty
 
 
 class IntBitPool(_BitPoolMixin, BitPoolABC):
-    def __init__(self, size: int) -> None:
+    def __init__(self, size: int | ty.SupportsInt) -> None:
+        size = int(size)
         assert size > 0, "Size must be greater than zero, got %r" % size
         self._size = size
         self._pool = 0

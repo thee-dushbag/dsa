@@ -4,11 +4,12 @@ import typing as ty
 
 
 class BytesBitPool(_BitPoolMixin, BitPoolABC):
-    def __init__(self, size: int) -> None:
+    def __init__(self, size: int | ty.SupportsInt) -> None:
+        size = int(size)
         assert size > 0, "Size must be greater than zero, got %r" % size
         self._size = size
         slots = size // 8 + 1
-        self._pool = bytearray(b"\0" * slots)
+        self._pool = bytearray(slots)
 
     @property
     def used(self) -> int:
