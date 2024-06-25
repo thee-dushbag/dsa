@@ -14,16 +14,14 @@ def _to_bytes(value: int) -> bytes:
 def mmh3_hasher(value: ty.Iterable[int], seed: int, clamp: int, shift: int) -> int:
     seed *= clamp * shift
     # mypy not finding `mmh3` stub files
-    from mmh3 import hash128 # type: ignore
+    from mmh3 import hash128  # type: ignore
 
     return hash128(bytes(value), seed=seed)
 
 
 def py_hasher(value: ty.Iterable[int], seed: int, clamp: int, shift: int):
-    import builtins
-
     seed *= clamp * shift
-    return builtins.hash(bytes(value)) * seed
+    return __builtins__.hash(bytes(value)) * seed
 
 
 def my_hasher(value: ty.Iterable[int], seed: int, clamp: int, shift: int):
@@ -48,7 +46,7 @@ def _default_hasher() -> Hasher:
     These two are faster than my hasher.
     """
     try:
-        import mmh3
+        import mmh3  # type: ignore
     except ImportError:
         return py_hasher
     else:
@@ -69,7 +67,7 @@ def hash(
 
     It can produce different values depending on the type of
     data; hash(b'Hey') != hash('Hey'), hash(-90) != hash(90),
-    hash(1) != hash(1.0) != hash(1 + 0j).
+    hash(1) != hash(1.0) != hash(1 + 0j) != hash(1.0 + 0j).
     """
     hasher = _default_hasher() if hasher is None else hasher
     shift = 8 if shift is None else shift
@@ -78,7 +76,7 @@ def hash(
     hash_value = 7919
 
     match value:
-        case int() | bool():
+        case int():
             bytes_seq = _to_bytes(value)
             hash_value *= 892189
         case float():
@@ -106,4 +104,4 @@ def hash(
             raise TypeError(msg % (value, type(value).__name__))
 
     hash_value = hasher(bytes_seq, hash_value, clamp, shift)
-    return (hash_value + (clamp * shift)) & (clamp >> shift)
+    return (hash_value + clamp * shift) & (clamp >> shift)

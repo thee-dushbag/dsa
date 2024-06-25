@@ -152,7 +152,7 @@ class BitPoolABC(ty.Protocol):
     ) -> ty.Iterable[bool]:
         """
         `self.read_bits(indices)`
-        `self.read_bits(map(lambda i: i.__index__() indices))`
+        `self.read_bits(map(lambda i: i.__index__(), indices))`
         `self.read_bits(chain.from_iterable(map(lambda s: range(s.start, s.stop, s.step), indices)))`
         """
         ...

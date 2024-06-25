@@ -1,5 +1,5 @@
 """
-Bloom filters are a variant of hash tables
+Bloom filters are a variant of hash sets
 with a twist, they occupy way less space and
 are super fast but unfortunately, they are
 probabilistic. This means if a bloom says it
@@ -7,16 +7,16 @@ has no value then the value is definately not
 there but when it says there is, then the value
 may or may not be in the bloom.
 
-A bloom works by using some integer types bits
-and bit operations to mark the presence or absence
+A bloom works by using a bit pool and bit
+operations to mark the presence or absence
 of a value. To insert a value, hash it and
-mod by the total number of bits in the integer
+mod by the total number of bits in the pool
 then activate the bit that corresponds to that
 mod result. You can notice that multiple
 values may activate the same bit hence if the bit
 is on, it may mean some multiple values are in but
 if it is off, then all values that activate that
-bit were definately not added.
+bit are definately not.
 
 Bloom filters are perfect for caching data.
 Before going on to start some heavy processing
