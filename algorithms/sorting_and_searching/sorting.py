@@ -70,7 +70,6 @@ def _insert_item_bst(array, stop, key):
 
 
 def _insertion_sort_impl(array, key, insertindex):
-    insertindex = _insert_item if insertindex is None else insertindex
     key = _identity if key is None else key
     start, size = 1, len(array)
     while start < size:

@@ -1,5 +1,6 @@
+import random, mdheap, pytest
 from pool.abc import BitPoolABC
-import pytest, typing as ty
+import typing as ty
 
 
 def _test_bit_pool_core_api(pool: BitPoolABC):
@@ -168,3 +169,23 @@ def test_bloom_filter():
     bloom.extend(data)  # Insert all inputs into our bloom filter
     assert all(bloom.has(d) for d in data), repr(bloom)
     assert not any(bloom.has(d) for d in others), repr(bloom)
+
+
+def _test_heapsort(shuffled_data: list[int], sorted_data: list[int], D: int):
+    heap = mdheap.DHeap(D)
+    heap.fy(shuffled_data)
+    minimum = shuffled_data[0] - 1
+    heap.push(shuffled_data, minimum)
+    assert heap.pop(shuffled_data) == minimum
+    new_data = []
+    while shuffled_data:
+        new_data.append(heap.pop(shuffled_data))
+    assert new_data == sorted_data
+
+
+def test_mdheap():
+    data = list(range(1, 501))
+    okay = data.copy()
+    random.shuffle(data)
+    for D in range(1, 11):
+        _test_heapsort(data.copy(), okay, D)

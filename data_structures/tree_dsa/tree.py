@@ -1,14 +1,11 @@
 from dataclasses import dataclass
-import typing as ty
-
-T = ty.TypeVar("T")
 
 
 @dataclass
-class Node(ty.Generic[T]):
+class Node[T]:
     data: T
-    left: "Node | None" = None
-    right: "Node | None" = None
+    left: "Node[T] | None" = None
+    right: "Node[T] | None" = None
 
     @property
     def height(self) -> int:
@@ -18,4 +15,4 @@ class Node(ty.Generic[T]):
             return self.left.height
         elif self.right:
             return self.right.height
-        return 0
+        return 1
