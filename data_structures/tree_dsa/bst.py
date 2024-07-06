@@ -1,37 +1,26 @@
 import typing as ty
+import dataclasses as dt
+import tree
 
 
 class Comparable(ty.Protocol):
-    def __lt__(self, other: ty.Any, /) -> ty.Any: ...
-    def __gt__(self, other: ty.Any, /) -> ty.Any: ...
-    def __eq__(self, other: ty.Any, /) -> ty.Any: ...
-    def __le__(self, other: ty.Any, /) -> ty.Any: ...
-    def __ge__(self, other: ty.Any, /) -> ty.Any: ...
-    def __ne__(self, other: ty.Any, /) -> ty.Any: ...
+    def __lt__(self, other, /) -> bool: ...
+    def __gt__(self, other, /) -> bool: ...
+    def __eq__(self, other, /) -> bool: ...
+    def __le__(self, other, /) -> bool: ...
+    def __ge__(self, other, /) -> bool: ...
+    def __ne__(self, other, /) -> bool: ...
 
 
 T = ty.TypeVar("T", bound=Comparable)
 
 
+@dt.dataclass(slots=True)
 class Node(ty.Generic[T]):
-    def __init__(
-        self,
-        value: T,
-        *,
-        left: "Node[T] | None" = None,
-        right: "Node[T] | None" = None,
-        parent: "Node[T] | None" = None,
-    ) -> None:
-        self.value = value
-        self.left = left
-        self.right = right
-        self.parent = parent
-
-    def __str__(self):
-        return str(self.value)
-
-    def __repr__(self):
-        return f"<Node value={self.value!r}>"
+    value: T
+    left: "Node[T] | None" = None
+    right: "Node[T] | None" = None
+    parent: "Node[T] | None" = None
 
     @classmethod
     def none(cls) -> "Node[T]":
@@ -43,38 +32,6 @@ class Node(ty.Generic[T]):
     __bool__ = isnone
 
 
-def inorder(tree: Node[T] | None) -> ty.Generator[T, None, None]:
-    if tree is None:
-        return
-    yield from inorder(tree.left)
-    yield tree.value
-    yield from inorder(tree.right)
-
-
-def rinorder(tree: Node[T] | None) -> ty.Generator[T, None, None]:
-    if tree is None:
-        return
-    yield from inorder(tree.right)
-    yield tree.value
-    yield from inorder(tree.left)
-
-
-def preorder(tree: Node[T] | None) -> ty.Generator[T, None, None]:
-    if tree is None:
-        return
-    yield tree.value
-    yield from preorder(tree.left)
-    yield from preorder(tree.right)
-
-
-def _height(tree: Node[T] | None) -> int:
-    if tree is None:
-        return 0
-    left = _height(tree.left)
-    right = _height(tree.right)
-    return max(left, right) + 1
-
-
 def nodify(items: list[T], parent: Node[T] | None = None) -> Node[T] | None:
     if not items:
         return None
@@ -83,6 +40,16 @@ def nodify(items: list[T], parent: Node[T] | None = None) -> Node[T] | None:
     root.left = nodify(items[:mid], root)
     root.right = nodify(items[mid + 1 :], root)
     return root
+
+
+def inorder(node: Node[T] | None) -> ty.Iterator[T]:
+    iterator = ty.cast(ty.Iterable[Node[T]], tree.inorder(node))
+    return (n.value for n in iterator)
+
+
+def rinorder(node: Node[T] | None) -> ty.Iterator[T]:
+    iterator = ty.cast(ty.Iterable[Node[T]], tree.rinorder(node))
+    return (n.value for n in iterator)
 
 
 class BinarySearchTree(ty.Generic[T]):
@@ -127,44 +94,38 @@ class BinarySearchTree(ty.Generic[T]):
         self._tree = ty.cast(Node[T], tree)
 
     def __iter__(self):
+        # yield from inorder(self._tree)
         return inorder(self._tree)
 
     def __reversed__(self):
         return rinorder(self._tree)
 
     def min(self) -> T:
-        if not self:
+        if self._tree is None:
             raise ValueError("Empty Container")
-        root = self._tree
-        while root.left is not None:
-            root = root.left
-        return root.value
+        node = tree.leftmost(self._tree)
+        return ty.cast(Node[T], node).value
 
     def max(self) -> T:
-        if not self:
+        if self._tree is None:
             raise ValueError("Empty Container")
-        root = self._tree
-        while root.right is not None:
-            root = root.right
-        return root.value
+        node = tree.rightmost(self._tree)
+        return ty.cast(Node[T], node).value
 
     def balance(self):
-        tree = nodify(list(self))
+        tree = nodify([*self])
         self._tree = ty.cast(Node[T], tree)
 
     def height(self) -> int:
-        return _height(self._tree)
+        return tree.height(self._tree)
 
     def find(self, thing: T):
-        root = self._tree
-        while root:
-            if root.value == thing:
-                return True
-            elif root.value < thing:
-                root = root.right
-            else:
-                root = root.left
+        def guide(node: Node[T]):
+            if node.value == thing:
+                raise StopIteration
+            return node.value > thing
+        return tree.walk(self._tree, guide) is None
 
     def __str__(self):
-        values = list(preorder(self._tree))
+        values = list(tree.preorder(self._tree))
         return f"BST({values}, len={self._size})"

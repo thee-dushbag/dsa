@@ -11,7 +11,7 @@ def _findmin[T: _LessThan](items: list[T], indices: range) -> int:
     """
     Find the smallest item in a sublist of D items.
     Returns the index of the smallest item in the list
-    Takes `O(D)` if the irregardless of size of list.
+    Takes `O(D)` regardless of size of list.
     """
     minindex: int = indices.start
     try:
@@ -103,7 +103,7 @@ def heappop[T: _LessThan](dheap: list[T], D: int) -> T:
     return target
 
 
-class DHeap:
+class DHeap[T: _LessThan]:
     __slots__ = ("_D",)
 
     def __init__(self, D: int, /) -> None:
@@ -116,13 +116,13 @@ class DHeap:
     def branching_factor(self) -> int:
         return self._D
 
-    def heapify[T: _LessThan](self, dheap: list[T]):
+    def heapify(self, dheap: list[T]):
         return heapify(dheap, self._D)
 
-    def heappush[T: _LessThan](self, dheap: list[T], item: T):
+    def heappush(self, dheap: list[T], item: T):
         return heappush(dheap, item, self._D)
 
-    def heappop[T: _LessThan](self, dheap: list[T]) -> T:
+    def heappop(self, dheap: list[T]) -> T:
         return heappop(dheap, self._D)
 
     # Shortcuts

@@ -11,9 +11,17 @@ right childs and lastly the node's data. (mnemonic: LRP)
 """
 
 import typing as ty
-from tree import Node
+import dataclasses as dt
 
 T = ty.TypeVar("T")
+
+@dt.dataclass(slots=True)
+class Node[T]:
+    data: T
+    left: "Node[T] | None" = None
+    right: "Node[T] | None" = None
+
+    from tree import height
 
 
 DataStream = ty.Generator[T, None, None]
@@ -77,11 +85,11 @@ def main():
     d = Node(6, a, b)
     root = Node(7, c, d)
 
-    print(f"{root.height = }")
-    print(f"{c.height = }")
-    print(f"{d.height = }")
-    print(f"{a.height = }")
-    print(f"{b.height = }")
+    print(f"{root.height() = }")
+    print(f"{c.height() = }")
+    print(f"{d.height() = }")
+    print(f"{a.height() = }")
+    print(f"{b.height() = }")
 
     def chain(root: Node, traverser: Traverser, sep: str = " -> ") -> str:
         return sep.join(map(lambda node: str(node.data), traverser(root)))

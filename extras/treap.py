@@ -183,28 +183,65 @@ def _min(tree: Node[T]) -> Node[T]:
     return tree
 
 
-def _inorder(tree: Node[T] | None):
+def _len(tree: Node[T] | None):
+    total: int = 0
+    stack = [tree]
+    while stack:
+        node = stack.pop()
+        if node is None:
+            continue
+        total += 1
+        stack.append(node.left)
+        stack.append(node.right)
+    return total
+
+
+def _inorder_generic(
+    tree: Node[T] | None, order: ty.Callable[[Node[T]], ty.Iterable[Node[T] | None]]
+) -> ty.Generator[Node[T], None, None]:
     if tree is None:
         return
-    yield from _inorder(tree.left)
-    yield tree
-    yield from _inorder(tree.right)
+    stack = [None, *order(tree)]
+    while True:
+        child = stack.pop()
+        if child is not None:
+            stack.extend(order(child))
+            continue
+        parent = stack.pop()
+        if parent is None:
+            break
+        yield parent
 
 
-def _rinorder(tree: Node[T] | None):
-    if tree is None:
-        return
-    yield from _rinorder(tree.right)
-    yield tree
-    yield from _rinorder(tree.left)
+def _inorder(tree: Node[T] | None) -> ty.Generator[Node[T], None, None]:
+    return _inorder_generic(tree, lambda n: (n.right, n, n.left))
 
 
-def _height(tree: Node[T] | None):
-    if tree is None:
-        return 0
-    left_height = _height(tree.left) + 1
-    right_height = _height(tree.right) + 1
-    return max(left_height, right_height)
+def _rinorder(tree: Node[T] | None) -> ty.Generator[Node[T], None, None]:
+    return _inorder_generic(tree, lambda n: (n.left, n, n.right))
+
+
+def _height(node: Node[T] | None) -> int:
+    stack: list[tuple[Node[T] | None, bool, int]] = [(node, False, 0)]
+    while True:
+        node, expanded, height = stack.pop()
+        if expanded:
+            if not stack:
+                break
+            other, oexpanded, oheight = stack.pop()
+            if oexpanded:
+                parent, _, _ = stack.pop()
+                new_height = max(oheight, height) + 1
+                stack.append((parent, True, new_height))
+            else:
+                stack.append((node, True, height))
+                stack.append((other, False, 0))
+        else:
+            stack.append((node, True, 0))
+            if node is not None:
+                stack.append((node.left, False, 0))
+                stack.append((node.right, False, 0))
+    return height
 
 
 @dt.dataclass(slots=True)

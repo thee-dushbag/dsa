@@ -1,7 +1,7 @@
 from bst import BinarySearchTree
 from sys import setrecursionlimit
 from typing import Callable
-from faker import Faker
+# from faker import Faker
 from mpack import timer
 from random import choices, shuffle
 
@@ -9,8 +9,6 @@ timer.FUNCTION_CALL_STR = "[{function_name}({args}, {kwargs})]"
 timer.TAKEN_TIME_STR = "{target}: Took {lapse._time} seconds."
 
 
-fake = Faker()
-setrecursionlimit(1000000)
 Searcher = Callable[[str], timer.TimeitResult]
 
 
