@@ -1,6 +1,7 @@
-from bst import BinarySearchTree
+from bst import BinarySearchTree, Node
 from sys import setrecursionlimit
 from typing import Callable
+
 # from faker import Faker
 from mpack import timer
 from random import choices, shuffle
@@ -22,11 +23,11 @@ def linear_search(things: list[str]) -> tuple[str, Searcher]:
     return "Linear", searcher
 
 
-def binary_search(things: list[str]) -> tuple[str, Searcher]:
+def binary_search(things: list) -> tuple[str, Searcher]:
     things = sorted(things)
 
     @timer.timer_sync
-    def searcher(thing: str):
+    def searcher(thing):
         if not things:
             return
         high, low = len(things), 0
@@ -43,8 +44,9 @@ def binary_search(things: list[str]) -> tuple[str, Searcher]:
     return "Binary", searcher
 
 
-def bst_search(things: list[str]) -> tuple[str, Searcher]:
+def bst_search(things: list) -> tuple[str, Searcher]:
     bst = BinarySearchTree(things)
+    print(bst)
 
     @timer.timer_sync
     def searcher(thing: str):
@@ -53,7 +55,7 @@ def bst_search(things: list[str]) -> tuple[str, Searcher]:
     return "BST", searcher
 
 
-def take_things(things: list[str], n: int) -> list[str]:
+def take_things(things: list, n: int) -> list:
     return choices(things, k=n)
 
 
@@ -63,7 +65,7 @@ def average_speed(name: str, searcher: Searcher, things: list[str]):
 
 
 def main():
-    things = list(map(str, range(10_000_000)))
+    things = list(range(1_000_000))
     shuffle(things)
     searchers = [
         # linear_search(things),
@@ -71,7 +73,7 @@ def main():
         bst_search(things),
     ]
     print("Loaded")
-    tofind = take_things(things, 10)
+    tofind = take_things(things, 1_000)
     for name, searcher in searchers:
         print(average_speed(name, searcher, tofind))
 

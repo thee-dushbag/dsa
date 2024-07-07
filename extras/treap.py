@@ -1,37 +1,15 @@
 import typing as ty
 import dataclasses as dt
 
-__all__ = "Treap", "T", "Node"
+__all__ = "Treap", "Node"
 
 
-class _LT(ty.Protocol):
-    def __lt__(self, other, /) -> bool: ...
-
-
-class _LE(ty.Protocol):
-    def __le__(self, other, /) -> bool: ...
-
-
-class _GT(ty.Protocol):
-    def __gt__(self, other, /) -> bool: ...
-
-
-class _GE(ty.Protocol):
-    def __ge__(self, other, /) -> bool: ...
-
-
-class _EQ(ty.Protocol):
-    def __eq__(self, other, /) -> bool: ...
-
-
-class _Ordered(_LT, _LE, _EQ, _GT, _GE, ty.Protocol): ...
-
-
-T = ty.TypeVar("T", bound=_Ordered)
+class _Ordered(ty.Protocol):
+    def __gt__(self, other: ty.Any, /) -> bool: ...
 
 
 @dt.dataclass(slots=True)
-class Node(ty.Generic[T]):
+class Node[T]:
     key: T
     priority: float
     parent: "Node[T] | None" = dt.field(default=None, repr=False)
@@ -39,7 +17,7 @@ class Node(ty.Generic[T]):
     right: "Node[T] | None" = dt.field(default=None, repr=False)
 
 
-def _rotate_right(node: Node[T]):
+def _rotate_right[T](node: Node[T]):
     if node.parent is None:
         raise ValueError("node lacks parent", node)
     assert node.parent.left is node, node
@@ -61,10 +39,8 @@ def _rotate_right(node: Node[T]):
         else:
             grand_parent.right = node
 
-    return node
 
-
-def _rotate_left(node: Node[T]):
+def _rotate_left[T](node: Node[T]):
     if node.parent is None:
         raise ValueError("node lacks parent", node)
     assert node.parent.right is node, node
@@ -86,10 +62,8 @@ def _rotate_left(node: Node[T]):
         else:
             grand_parent.right = node
 
-    return node
 
-
-def _siftup(node: Node[T]):
+def _siftup[T](node: Node[T]):
     while node.parent is not None:
         if node.priority < node.parent.priority:
             if node.parent.left is node:
@@ -98,10 +72,9 @@ def _siftup(node: Node[T]):
                 _rotate_left(node)
         else:
             break
-    return node
 
 
-def _siftdown(node: Node[T]):
+def _siftdown[T](node: Node[T]):
     while True:
         if node.left is not None and node.right is not None:
             child, rotate_child = node.right, _rotate_left
@@ -125,7 +98,7 @@ def _siftdown(node: Node[T]):
             break
 
 
-def _siftdown_leaf(node: Node[T]):
+def _siftdown_leaf[T](node: Node[T]):
     while True:
         if node.left is not None and node.right is not None:
             if node.left.priority <= node.right.priority:
@@ -138,26 +111,24 @@ def _siftdown_leaf(node: Node[T]):
             _rotate_left(node.right)
         else:
             break
-    return node
 
 
-def _insert_bst(tree: Node[T], node: Node[T]):
+def _insert_bst[T: _Ordered](tree: Node[T], node: Node[T]):
     while True:
-        if tree.key <= node.key:
-            if tree.right is None:
-                tree.right = node
-                break
-            tree = tree.right
-        else:
+        if tree.key > node.key:
             if tree.left is None:
                 tree.left = node
                 break
             tree = tree.left
+        else:
+            if tree.right is None:
+                tree.right = node
+                break
+            tree = tree.right
     node.parent = tree
-    return node
 
 
-def _find_bst(tree: Node[T], key: T) -> Node[T] | None:
+def _find_bst[T: _Ordered](tree: Node[T], key: T) -> Node[T] | None:
     while True:
         if tree.key == key:
             return tree
@@ -171,19 +142,19 @@ def _find_bst(tree: Node[T], key: T) -> Node[T] | None:
             tree = tree.left
 
 
-def _max(tree: Node[T]) -> Node[T]:
+def _max[T](tree: Node[T]) -> Node[T]:
     while tree.right is not None:
         tree = tree.right
     return tree
 
 
-def _min(tree: Node[T]) -> Node[T]:
+def _min[T](tree: Node[T]) -> Node[T]:
     while tree.left is not None:
         tree = tree.left
     return tree
 
 
-def _len(tree: Node[T] | None):
+def _len[T](tree: Node[T] | None) -> int:
     total: int = 0
     stack = [tree]
     while stack:
@@ -196,9 +167,10 @@ def _len(tree: Node[T] | None):
     return total
 
 
-def _inorder_generic(
-    tree: Node[T] | None, order: ty.Callable[[Node[T]], ty.Iterable[Node[T] | None]]
-) -> ty.Generator[Node[T], None, None]:
+type _Order[T] = ty.Callable[[Node[T]], ty.Iterable[Node[T] | None]]
+
+
+def _inorder_generic[T](tree: Node[T] | None, order: _Order[T]):
     if tree is None:
         return
     stack = [None, *order(tree)]
@@ -213,15 +185,15 @@ def _inorder_generic(
         yield parent
 
 
-def _inorder(tree: Node[T] | None) -> ty.Generator[Node[T], None, None]:
+def _inorder[T](tree: Node[T] | None) -> ty.Iterable[Node[T]]:
     return _inorder_generic(tree, lambda n: (n.right, n, n.left))
 
 
-def _rinorder(tree: Node[T] | None) -> ty.Generator[Node[T], None, None]:
+def _rinorder[T](tree: Node[T] | None) -> ty.Iterable[Node[T]]:
     return _inorder_generic(tree, lambda n: (n.left, n, n.right))
 
 
-def _height(node: Node[T] | None) -> int:
+def _height[T](node: Node[T] | None) -> int:
     stack: list[tuple[Node[T] | None, bool, int]] = [(node, False, 0)]
     while True:
         node, expanded, height = stack.pop()
@@ -245,23 +217,20 @@ def _height(node: Node[T] | None) -> int:
 
 
 @dt.dataclass(slots=True)
-class Treap(ty.Generic[T]):
-    _root: Node[T] | None = dt.field(default=None, init=False)
+class Treap[T: _Ordered]:
+    _root: Node[T] | None = dt.field(default=None, init=False, repr=False)
     _size: int = dt.field(default=0, init=False)
 
     def __len__(self) -> int:
         return self._size
+
+    __bool__ = __len__
 
     def __iter__(self) -> ty.Iterator[tuple[T, float]]:
         return map(lambda n: (n.key, n.priority), _inorder(self._root))
 
     def __reversed__(self) -> ty.Iterator[tuple[T, float]]:
         return map(lambda n: (n.key, n.priority), _rinorder(self._root))
-
-    def __str__(self) -> str:
-        return f"Treap(len={self._size}, height={self.height()})"
-
-    __repr__ = __str__
 
     def height(self) -> int:
         return _height(self._root)
@@ -284,22 +253,13 @@ class Treap(ty.Generic[T]):
 
     def max(self) -> T:
         if self._root is None:
-            raise ValueError
+            raise KeyError
         return _max(self._root).key
 
     def min(self) -> T:
         if self._root is None:
-            raise ValueError
+            raise KeyError
         return _min(self._root).key
-
-    def _insert(self, node: Node[T]):
-        if self._root is None:
-            self._root = node
-            return
-        _insert_bst(self._root, node)
-        _siftup(node)
-        if node.parent is None:
-            self._root = node
 
     def insert(self, key: T, priority: float):
         self._insert(Node(key, priority))
@@ -316,7 +276,45 @@ class Treap(ty.Generic[T]):
         else:
             _siftdown(node)
 
+    def contains(self, key: T) -> bool:
+        if self._root is None:
+            return False
+        return _find_bst(self._root, key) is not None
+
+    def delete(self, key: T) -> tuple[T, float]:
+        node = self._delete(self._find(key))
+        self._size -= 1
+        return node.key, node.priority
+
+    def top(self) -> tuple[T, float]:
+        if self._root is None:
+            raise ValueError
+        return self._root.key, self._root.priority
+
+    def pop(self) -> tuple[T, float]:
+        node = self._deletetop()
+        self._size -= 1
+        return node.key, node.priority
+
+    def extend(self, items: ty.Iterable[tuple[T, float]]):
+        for key, priority in items:
+            self.insert(key, priority)
+
+    def clear(self):
+        self._root = None
+        self._size = 0
+
+    def _insert(self, node: Node[T]):
+        if self._root is None:
+            self._root = node
+            return
+        _insert_bst(self._root, node)
+        _siftup(node)
+        if node.parent is None:
+            self._root = node
+
     def _delete(self, node: Node[T]):
+        # capture all immediate neighbors to select a new root if necessary
         left, right, parent = node.left, node.right, node.parent
         # push node down till it is a leaf
         _siftdown_leaf(node)
@@ -348,35 +346,7 @@ class Treap(ty.Generic[T]):
             raise KeyError(key)
         return target
 
-    def contains(self, key: T) -> bool:
-        if self._root is None:
-            return False
-        return _find_bst(self._root, key) is not None
-
-    def delete(self, key: T) -> tuple[T, float]:
-        node = self._delete(self._find(key))
-        self._size -= 1
-        return node.key, node.priority
-
-    def top(self) -> tuple[T, float]:
-        if self._root is None:
-            raise ValueError
-        return self._root.key, self._root.priority
-
-    def pop(self) -> tuple[T, float]:
-        node = self._deletetop()
-        self._size -= 1
-        return node.key, node.priority
-
     def _deletetop(self) -> Node[T]:
         if self._root is None:
             raise ValueError
         return self._delete(self._root)
-
-    def extend(self, items: ty.Iterable[tuple[T, float]]):
-        for key, priority in items:
-            self.insert(key, priority)
-
-    def clear(self):
-        self._root = None
-        self._size = 0

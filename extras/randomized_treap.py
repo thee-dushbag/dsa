@@ -1,5 +1,4 @@
 import dataclasses as dt
-import math
 import typing as ty
 import random
 import treap
@@ -10,7 +9,6 @@ try:
     _rand = random.SystemRandom()
 except Exception:
     _rand = random.Random()
-_rand = random.Random()
 
 
 def seed(seed: float | int | bytes | bytearray | str | None = None):
@@ -18,27 +16,25 @@ def seed(seed: float | int | bytes | bytearray | str | None = None):
 
 
 @dt.dataclass(slots=True)
-class RandomizedTreap(ty.Generic[treap.T]):
-    _tree: treap.Treap[treap.T] = dt.field(
-        default_factory=treap.Treap[treap.T], init=False
-    )
+class RandomizedTreap[T: treap._Ordered]:
+    _tree: treap.Treap[T] = dt.field(default_factory=treap.Treap, init=False)
 
-    def contains(self, item: treap.T) -> bool:
+    def contains(self, item: T) -> bool:
         return self._tree.contains(item)
 
-    def insert(self, item: treap.T):
-        self._tree.insert(item, _rand.random() ** 2)
+    def insert(self, item: T):
+        self._tree.insert(item, _rand.random())
 
-    def max(self) -> treap.T:
+    def max(self) -> T:
         return self._tree.max()
 
-    def min(self) -> treap.T:
+    def min(self) -> T:
         return self._tree.min()
 
     def __len__(self) -> int:
         return len(self._tree)
 
-    def delete(self, item: treap.T):
+    def delete(self, item: T):
         self._tree.delete(item)
 
     def __iter__(self):
@@ -56,7 +52,7 @@ class RandomizedTreap(ty.Generic[treap.T]):
     def balanced(self) -> bool:
         return self._tree.balanced()
 
-    def extend(self, iterable: ty.Iterable[treap.T]):
+    def extend(self, iterable: ty.Iterable[T]):
         for item in iterable:
             self.insert(item)
 
@@ -66,28 +62,3 @@ class RandomizedTreap(ty.Generic[treap.T]):
         return f"RandomizedTreap(len={len(self)}, height={self.height()})"
 
     __repr__ = __str__
-
-    def try_balance(self):
-        values = list(self)
-        ideal_height = math.ceil(math.log2(len(values)))
-        indices = _bstindices(ideal_height)
-        self._tree.clear()
-        for index in indices:
-            try:
-                self.insert(values[index])
-            except IndexError:
-                ...
-
-
-if __name__ == "__main__":
-    rt = RandomizedTreap[int]()
-    rt.extend(range(1, 1))
-    print(rt)
-    # assert rt._tree._root is not None
-    # print("left :", rt._tree.left_height(), treap._len(rt._tree._root.left))
-    # print("right:", rt._tree.right_height(), treap._len(rt._tree._root.right))
-    # rt.try_balance()
-    # print("left :", rt._tree.left_height(), treap._len(rt._tree._root.left))
-    # print("right:", rt._tree.right_height(), treap._len(rt._tree._root.right))
-    # print(rt.min(), rt.max())
-    print(list(reversed(rt)))

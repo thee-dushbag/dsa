@@ -52,6 +52,14 @@ def rinorder(node: Node[T] | None) -> ty.Iterator[T]:
     return (n.value for n in iterator)
 
 
+def _connect(parent: Node[T], left: Node[T], right: Node[T] | None):
+    if right is not None:
+        right.parent = parent
+        parent.right = right
+    left.parent = parent
+    parent.left = left
+
+
 class BinarySearchTree(ty.Generic[T]):
     def __init__(self, iterable: ty.Iterable[T] | None = None, /) -> None:
         self._tree: Node[T] = ty.cast(Node[T], None)
@@ -89,12 +97,12 @@ class BinarySearchTree(ty.Generic[T]):
         self._size += 1
 
     def extend(self, iterable: ty.Iterable[T], /):
-        tree = nodify((s := sorted(iterable)))
-        self._size = len(s)
-        self._tree = ty.cast(Node[T], tree)
+        v = list(iterable)
+        v.sort()
+        self._size = n = len(v)
+        self._tree = tree.nodify(_connect, Node[T], v, n)
 
     def __iter__(self):
-        # yield from inorder(self._tree)
         return inorder(self._tree)
 
     def __reversed__(self):
@@ -103,18 +111,17 @@ class BinarySearchTree(ty.Generic[T]):
     def min(self) -> T:
         if self._tree is None:
             raise ValueError("Empty Container")
-        node = tree.leftmost(self._tree)
-        return ty.cast(Node[T], node).value
+        return tree.leftmost(self._tree).value
 
     def max(self) -> T:
         if self._tree is None:
             raise ValueError("Empty Container")
-        node = tree.rightmost(self._tree)
-        return ty.cast(Node[T], node).value
+        return tree.rightmost(self._tree).value
 
     def balance(self):
-        tree = nodify([*self])
-        self._tree = ty.cast(Node[T], tree)
+        if not self:
+            return
+        self._tree = tree.nodify(_connect, Node[T], self, self._size)
 
     def height(self) -> int:
         return tree.height(self._tree)
@@ -124,8 +131,8 @@ class BinarySearchTree(ty.Generic[T]):
             if node.value == thing:
                 raise StopIteration
             return node.value > thing
+
         return tree.walk(self._tree, guide) is None
 
     def __str__(self):
-        values = list(tree.preorder(self._tree))
-        return f"BST({values}, len={self._size})"
+        return f"BST(len={self._size}, height={self.height()})"

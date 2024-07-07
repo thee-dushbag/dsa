@@ -25,18 +25,14 @@ class INode(ty.Protocol):
     def right(self) -> "INode | None": ...
 
 
-class mINode(ty.Protocol):
-    left: "mINode | None"
-    right: "mINode | None"
+Node = ty.TypeVar("Node", bound=INode)
+type _Orderer[Node: INode] = ty.Callable[[Node], ty.Iterable[Node | None]]
 
 
-type _Orderer = ty.Callable[[INode], ty.Iterable[INode | None]]
-
-
-def _inorder(tree: INode | None, order: _Orderer) -> ty.Iterable[INode]:
+def _inorder(tree: Node | None, order: _Orderer[Node]) -> ty.Iterable[Node]:
     if tree is None:
         return
-    stack = [None, *order(tree)]
+    stack: list[Node | None] = [None, *order(tree)]
     while True:
         child = stack.pop()
         if child is not None:
@@ -48,10 +44,10 @@ def _inorder(tree: INode | None, order: _Orderer) -> ty.Iterable[INode]:
         yield parent
 
 
-def _breadth(tree: INode | None, order: _Orderer) -> ty.Iterable[INode]:
+def _breadth(tree: Node | None, order: _Orderer[Node]) -> ty.Iterable[Node]:
     from collections import deque
 
-    queue = deque[INode | None]((tree,))
+    queue = deque[Node | None]((tree,))
     while queue:
         node = queue.popleft()
         if node is not None:
@@ -59,8 +55,8 @@ def _breadth(tree: INode | None, order: _Orderer) -> ty.Iterable[INode]:
             yield node
 
 
-def _preorder(tree: INode | None, order: _Orderer) -> ty.Iterable[INode]:
-    stack: list[INode | None] = [tree]
+def _preorder(tree: Node | None, order: _Orderer[Node]) -> ty.Iterable[Node]:
+    stack: list[Node | None] = [tree]
     while stack:
         node = stack.pop()
         if node is not None:
@@ -68,8 +64,8 @@ def _preorder(tree: INode | None, order: _Orderer) -> ty.Iterable[INode]:
             yield node
 
 
-def _postorder(tree: INode | None, order: _Orderer) -> ty.Iterable[INode]:
-    stack: list[tuple[INode | None, bool]] = [(tree, False)]
+def _postorder(tree: Node | None, order: _Orderer[Node]) -> ty.Iterable[Node]:
+    stack: list[tuple[Node | None, bool]] = [(tree, False)]
     ex_order = True, False, False
     while stack:
         node, expanded = stack.pop()
@@ -80,53 +76,53 @@ def _postorder(tree: INode | None, order: _Orderer) -> ty.Iterable[INode]:
             stack.extend(zip(order(node), ex_order))
 
 
-def inorder(tree: INode | None):
+def inorder(tree: Node | None) -> ty.Iterable[Node]:
     return _inorder(tree, lambda n: (n.right, n, n.left))
 
 
-def rinorder(tree: INode | None):
+def rinorder(tree: Node | None) -> ty.Iterable[Node]:
     return _inorder(tree, lambda n: (n.left, n, n.right))
 
 
-def preorder(tree: INode | None):
+def preorder(tree: Node | None) -> ty.Iterable[Node]:
     return _preorder(tree, lambda n: (n.right, n.left))
 
 
-def rpreorder(tree: INode | None):
+def rpreorder(tree: Node | None) -> ty.Iterable[Node]:
     return _preorder(tree, lambda n: (n.left, n.right))
 
 
-def postorder(tree: INode | None):
+def postorder(tree: Node | None) -> ty.Iterable[Node]:
     return _postorder(tree, lambda n: (n, n.right, n.left))
 
 
-def rpostorder(tree: INode | None):
+def rpostorder(tree: Node | None) -> ty.Iterable[Node]:
     return _postorder(tree, lambda n: (n, n.left, n.right))
 
 
-def breadth(tree: INode | None):
+def breadth(tree: Node | None) -> ty.Iterable[Node]:
     return _breadth(tree, lambda n: (n.left, n.right))
 
 
-def rbreadth(tree: INode | None):
+def rbreadth(tree: Node | None) -> ty.Iterable[Node]:
     return _breadth(tree, lambda n: (n.right, n.left))
 
 
-def rightmost(tree: INode) -> INode:
+def rightmost(tree: Node) -> Node:
     while True:
         if tree.right is None:
             return tree
         tree = tree.right
 
 
-def leftmost(tree: INode) -> INode:
+def leftmost(tree: Node) -> Node:
     while True:
         if tree.left is None:
             return tree
         tree = tree.left
 
 
-def walk(tree: INode | None, guide: ty.Callable[[ty.Any], bool]) -> INode | None:
+def walk(tree: Node | None, guide: ty.Callable[[Node], bool]) -> Node | None:
     try:
         while tree is not None:
             tree = tree.right if guide(tree) else tree.left
@@ -185,3 +181,68 @@ def bstindices(layers: int) -> ty.Generator[int, None, None]:
         if not queue:
             layers, step = layers - 1, step // 2
             queue, nqueue = nqueue, queue
+
+
+type _Connector[Node] = ty.Callable[[Node, Node, Node | None], None]
+type _Creator[Node, T] = ty.Callable[[T], Node]
+
+
+def nodify[
+    Node, T
+](
+    connect: _Connector[Node],
+    create: _Creator[Node, T],
+    iterable: ty.Iterable[T],
+    n: int | None = None,
+) -> Node:
+    from collections import deque
+    import math as m
+
+    if n is None:
+        iterable = list(iterable)
+        n = len(iterable)
+    if n <= 0:
+        raise ValueError(f"Invalid iterable size value {n=}, expected n > 0")
+
+    def manage_extras(iterable: ty.Iterable[T], extras: ty.MutableSequence[T]):
+        extra_count = n - 2 ** m.floor(m.log2(n + 1)) + 1
+        iterator = iter(iterable)
+        for _ in range(extra_count):
+            extras.append(next(iterator))
+            yield next(iterator)
+        yield from iterator
+
+    extras: deque[T] = deque()
+    iterator = manage_extras(iterable, extras)
+    leaf, sentinel = create(next(iterator)), object()
+    children: list[tuple[Node, int]] = [(leaf, 0)]
+    leaves: deque[Node] = deque((leaf,))
+    parents: list[T] = []
+
+    while True:
+        while parents:
+            rnode, rheight = children[-1]
+            lnode, lheight = children[-2]
+            if rheight != lheight:
+                break
+            parent = create(parents.pop())
+            connect(parent, lnode, rnode)
+            children.pop()
+            children.pop()
+            children.append((parent, lheight + 1))
+
+        new_parent: T = next(iterator, sentinel) # type: ignore
+        if new_parent is sentinel:
+            break
+        parents.append(new_parent)
+        new_child = create(next(iterator))
+        children.append((new_child, 0))
+        leaves.append(new_child)
+
+    while extras:
+        parent = leaves.popleft()
+        left = create(extras.popleft())
+        right = create(extras.popleft()) if extras else None
+        connect(parent, left, right)
+
+    return children.pop()[0]
