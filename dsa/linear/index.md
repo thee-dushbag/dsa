@@ -38,7 +38,7 @@ structure due to its fast insertion and deletions at the front and back.
 
 ###### Implementations
 
-- [**Python**](./ldsa/queue.py)
+- [**Python**](./queue.py)
 
 ### Array
 
@@ -47,7 +47,7 @@ An Implementation in python will be more helpful than in c/c++ due to the extrem
 
 ###### Implementations
 
-- [**Python**](./ldsa/array.py)
+- [**Python**](./array.py)
 
 ### Linked List
 
@@ -82,7 +82,7 @@ If an node in the list has already been found, deleting it from the list takes c
 
 ###### Implementations
 
-- [**Python**](./ldsa/linked_list.py) - only implemented the doubly and singly linked list.
+- [**Python**](./linked_list/__init__.py) - only implemented the doubly and singly linked list.
 
 ### Heap
 
@@ -107,7 +107,7 @@ Operations that can be done on a heap include:
 
 ###### Implementations
 
-- [**Python**](./ldsa/heap.py)
+- [**Python**](./heap.py)
 
 ### Set
 
@@ -119,7 +119,7 @@ In the case of collisions, we can create a linked list on the slot where the col
 
 ###### Implementations
 
-- [**Python**](./ldsa/set.py)
+- [**Python**](./set.py)
 
 ### Hash Table
 
@@ -129,7 +129,7 @@ This is pretty similar to the set except that, instead of hashing the value, we 
 
 ###### Implementations
 
-- [**Python**](./ldsa/hash_table.py)
+- [**Python**](./hash_table.py)
 
 ### Fibbonacci Heap
 

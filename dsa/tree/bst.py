@@ -1,6 +1,6 @@
 import typing as ty
 import dataclasses as dt
-import tree
+import dsa.tree.generic as generic
 
 
 class Comparable(ty.Protocol):
@@ -43,21 +43,22 @@ def nodify(items: list[T], parent: Node[T] | None = None) -> Node[T] | None:
 
 
 def inorder(node: Node[T] | None) -> ty.Iterator[T]:
-    iterator = ty.cast(ty.Iterable[Node[T]], tree.inorder(node))
+    iterator = ty.cast(ty.Iterable[Node[T]], generic.inorder(node))
     return (n.value for n in iterator)
 
 
 def rinorder(node: Node[T] | None) -> ty.Iterator[T]:
-    iterator = ty.cast(ty.Iterable[Node[T]], tree.rinorder(node))
+    iterator = ty.cast(ty.Iterable[Node[T]], generic.rinorder(node))
     return (n.value for n in iterator)
 
 
-def _connect(parent: Node[T], left: Node[T], right: Node[T] | None):
+def _connect(parent: Node[T], left: Node[T] | None, right: Node[T] | None):
     if right is not None:
         right.parent = parent
         parent.right = right
-    left.parent = parent
-    parent.left = left
+    if left is not None:
+        left.parent = parent
+        parent.left = left
 
 
 class BinarySearchTree(ty.Generic[T]):
@@ -100,7 +101,7 @@ class BinarySearchTree(ty.Generic[T]):
         v = list(iterable)
         v.sort()
         self._size = n = len(v)
-        self._tree = tree.nodify(_connect, Node[T], v, n)
+        self._tree = generic.nodify(_connect, Node[T], v, n)
 
     def __iter__(self):
         return inorder(self._tree)
@@ -111,20 +112,20 @@ class BinarySearchTree(ty.Generic[T]):
     def min(self) -> T:
         if self._tree is None:
             raise ValueError("Empty Container")
-        return tree.leftmost(self._tree).value
+        return generic.leftmost(self._tree).value
 
     def max(self) -> T:
         if self._tree is None:
             raise ValueError("Empty Container")
-        return tree.rightmost(self._tree).value
+        return generic.rightmost(self._tree).value
 
     def balance(self):
         if not self:
             return
-        self._tree = tree.nodify(_connect, Node[T], self, self._size)
+        self._tree = generic.nodify(_connect, Node[T], self, self._size)
 
     def height(self) -> int:
-        return tree.height(self._tree)
+        return generic.height(self._tree)
 
     def find(self, thing: T):
         def guide(node: Node[T]):
@@ -132,7 +133,7 @@ class BinarySearchTree(ty.Generic[T]):
                 raise StopIteration
             return node.value > thing
 
-        return tree.walk(self._tree, guide) is None
+        return generic.walk(self._tree, guide) is None
 
     def __str__(self):
         return f"BST(len={self._size}, height={self.height()})"

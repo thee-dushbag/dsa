@@ -10,10 +10,12 @@ the node's the lastly the right child's. (mnemonic: LPR)
 right childs and lastly the node's data. (mnemonic: LRP)
 """
 
+from tkinter import N
 import typing as ty
 import dataclasses as dt
 
 T = ty.TypeVar("T")
+
 
 @dt.dataclass(slots=True)
 class Node[T]:
@@ -21,7 +23,7 @@ class Node[T]:
     left: "Node[T] | None" = None
     right: "Node[T] | None" = None
 
-    from tree import height
+    from dsa.tree.generic import height
 
 
 DataStream = ty.Generator[T, None, None]
@@ -74,6 +76,18 @@ def rpostorder(tree: Node[T] | None) -> DataStream[Node[T]]:
     yield from rpostorder(tree.right)
     yield from rpostorder(tree.left)
     yield tree
+
+
+def height(tree: Node[T]):
+    l = 0 if tree.left is None else height(tree.left)
+    r = 0 if tree.right is None else height(tree.right)
+    return max(l, r) + 1
+
+
+def length(tree: Node[T]) -> int:
+    l = 0 if tree.left is None else length(tree.left)
+    r = 0 if tree.right is None else length(tree.right)
+    return l + r
 
 
 def main():

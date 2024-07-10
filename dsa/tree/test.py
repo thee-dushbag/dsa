@@ -1,10 +1,7 @@
-from bst import BinarySearchTree, Node
-from sys import setrecursionlimit
-from typing import Callable
-
-# from faker import Faker
-from mpack import timer
 from random import choices, shuffle
+from bst import BinarySearchTree
+from typing import Callable
+from mpack import timer
 
 timer.FUNCTION_CALL_STR = "[{function_name}({args}, {kwargs})]"
 timer.TAKEN_TIME_STR = "{target}: Took {lapse._time} seconds."

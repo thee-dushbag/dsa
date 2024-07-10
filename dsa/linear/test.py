@@ -1,4 +1,4 @@
-# Testing data structures stored in ldsa package.
+# Testing data structures stored in . package.
 
 import pytest
 
@@ -6,7 +6,7 @@ import pytest
 # Test Heep data structure.
 def test_heap_heapify_min():
     import heapq
-    from ldsa import heap
+    from . import heap
     from random import randint
 
     heap.setheaptype(heap.HeapType.MIN)  # Set the global default Heap type
@@ -20,7 +20,7 @@ def test_heap_heapify_min():
 
 def test_heap_heapify_max():
     import heapq
-    from ldsa import heap
+    from . import heap
     from random import randint
 
     heap.setheaptype(heap.HeapType.MAX)  # Set the global default Heap type
@@ -34,7 +34,7 @@ def test_heap_heapify_max():
 
 def test_heappush_min():
     import heapq
-    from ldsa import heap
+    from . import heap
     from random import randint
 
     heap.setheaptype(heap.HeapType.MIN)  # Set the global default Heap type
@@ -50,7 +50,7 @@ def test_heappush_min():
 
 def test_heappop_min():
     import heapq
-    from ldsa import heap
+    from . import heap
     from random import randint
 
     heap.setheaptype(heap.HeapType.MIN)  # Set the global default Heap type
@@ -120,25 +120,25 @@ def _linked_list_seq_test(List):
 
 
 def test_singly_linked_list():
-    from ldsa.linked_list.list import SinglyLinkedList
+    from .linked_list.list import SinglyLinkedList
 
     _linked_list_seq_test(SinglyLinkedList)
 
 
 def test_doubly_linked_list():
-    from ldsa.linked_list.list import DoublyLinkedList
+    from .linked_list.list import DoublyLinkedList
 
     _linked_list_seq_test(DoublyLinkedList)
 
 
 def test_cirdoubly_linked_list():
-    from ldsa.linked_list.list import CirDoublyLinkedList
+    from .linked_list.list import CirDoublyLinkedList
 
     _linked_list_seq_test(CirDoublyLinkedList)
 
 
 def test_deque():
-    import ldsa.queue as queue
+    from . import queue
 
     q: queue.Deque[int] = queue.Deque(maxsize=7)
 
@@ -159,7 +159,7 @@ def test_deque():
 
 
 def test_queue():
-    import ldsa.queue as queue
+    from . import queue
 
     q: queue.Queue[int] = queue.Queue(maxsize=3)
 
@@ -178,7 +178,8 @@ def test_queue():
 
 
 def test_lifo_queue():
-    import random as rand, ldsa.queue as queue
+    from . import queue
+    import random as rand
 
     for _ in range(100):
         sample = rand.choices(range(1000), k=100)
@@ -191,7 +192,8 @@ def test_lifo_queue():
 
 
 def test_priority_queue():
-    import random as rand, ldsa.queue as queue
+    from . import queue
+    import random as rand
 
     for _ in range(100):
         sample = rand.choices(range(1000), k=100)
@@ -204,7 +206,7 @@ def test_priority_queue():
 
 
 def test_array():
-    from ldsa.array import Array
+    from .array import Array
 
     with pytest.raises(AssertionError):
         Array(10.5)  # type: ignore
@@ -231,7 +233,7 @@ def test_array():
 
 
 def test_set():
-    from ldsa.set import Set
+    from .set import Set
 
     s = Set()
     s.add("Simon")
@@ -281,7 +283,7 @@ def test_set():
 
 
 def test_hashtable():
-    from ldsa.hash_table import HashTable
+    from .hash_table import HashTable
 
     data = [
         ("brother", "simon"),

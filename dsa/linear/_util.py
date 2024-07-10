@@ -201,6 +201,8 @@ class ValueList(ty.Generic[T]):
 
 
 class Slot(ty.Generic[T]):
+    __slots__ = ("value",)
+
     def __init__(self, value: T) -> None:
         self.value = value
 
@@ -220,7 +222,7 @@ class Array(ty.Generic[T]):
 
     def _grow(self, size: int):
         init = ty.cast(T, None)
-        slots = [Slot(init) for _ in range(size)]
+        slots = (Slot(init) for _ in range(size))
         self._list.extend(slots)
         self._size += size
 
@@ -253,8 +255,7 @@ class Array(ty.Generic[T]):
 
 @ty.runtime_checkable
 class Hashable(ty.Protocol):
-    def __myhash__(self) -> int:
-        ...
+    def __myhash__(self) -> int: ...
 
 
 _HashableType = ty.TypeVar("_HashableType", str, int, float, bytes, Hashable)

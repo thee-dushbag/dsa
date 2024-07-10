@@ -88,10 +88,10 @@ class Set(ty.MutableSet[_ValueType]):
     def difference(self, other: "ty.AbstractSet[_ValueType]") -> "Set[_ValueType]":
         return Set([item for item in self if item not in self.intersection(other)])
 
-    def __eq__(self, other: ty.AbstractSet[_ValueType]) -> bool:
+    def __eq__(self, other: object) -> bool:
         return all(item in other for item in self) and all(
             item in self for item in other
-        )
+        ) if isinstance(other, ty.Iterable) else NotImplemented
 
     __and__ = intersection
     __sub__ = difference

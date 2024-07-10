@@ -1,5 +1,6 @@
-import typing as ty
+from dsa.tree import generic as tds
 import dataclasses as dt
+import typing as ty
 
 __all__ = "Treap", "Node"
 
@@ -142,80 +143,6 @@ def _find_bst[T: _Ordered](tree: Node[T], key: T) -> Node[T] | None:
             tree = tree.left
 
 
-def _max[T](tree: Node[T]) -> Node[T]:
-    while tree.right is not None:
-        tree = tree.right
-    return tree
-
-
-def _min[T](tree: Node[T]) -> Node[T]:
-    while tree.left is not None:
-        tree = tree.left
-    return tree
-
-
-def _len[T](tree: Node[T] | None) -> int:
-    total: int = 0
-    stack = [tree]
-    while stack:
-        node = stack.pop()
-        if node is None:
-            continue
-        total += 1
-        stack.append(node.left)
-        stack.append(node.right)
-    return total
-
-
-type _Order[T] = ty.Callable[[Node[T]], ty.Iterable[Node[T] | None]]
-
-
-def _inorder_generic[T](tree: Node[T] | None, order: _Order[T]):
-    if tree is None:
-        return
-    stack = [None, *order(tree)]
-    while True:
-        child = stack.pop()
-        if child is not None:
-            stack.extend(order(child))
-            continue
-        parent = stack.pop()
-        if parent is None:
-            break
-        yield parent
-
-
-def _inorder[T](tree: Node[T] | None) -> ty.Iterable[Node[T]]:
-    return _inorder_generic(tree, lambda n: (n.right, n, n.left))
-
-
-def _rinorder[T](tree: Node[T] | None) -> ty.Iterable[Node[T]]:
-    return _inorder_generic(tree, lambda n: (n.left, n, n.right))
-
-
-def _height[T](node: Node[T] | None) -> int:
-    stack: list[tuple[Node[T] | None, bool, int]] = [(node, False, 0)]
-    while True:
-        node, expanded, height = stack.pop()
-        if expanded:
-            if not stack:
-                break
-            other, oexpanded, oheight = stack.pop()
-            if oexpanded:
-                parent, _, _ = stack.pop()
-                new_height = max(oheight, height) + 1
-                stack.append((parent, True, new_height))
-            else:
-                stack.append((node, True, height))
-                stack.append((other, False, 0))
-        else:
-            stack.append((node, True, 0))
-            if node is not None:
-                stack.append((node.left, False, 0))
-                stack.append((node.right, False, 0))
-    return height
-
-
 @dt.dataclass(slots=True)
 class Treap[T: _Ordered]:
     _root: Node[T] | None = dt.field(default=None, init=False, repr=False)
@@ -227,23 +154,23 @@ class Treap[T: _Ordered]:
     __bool__ = __len__
 
     def __iter__(self) -> ty.Iterator[tuple[T, float]]:
-        return map(lambda n: (n.key, n.priority), _inorder(self._root))
+        return map(lambda n: (n.key, n.priority), tds.inorder(self._root))
 
     def __reversed__(self) -> ty.Iterator[tuple[T, float]]:
-        return map(lambda n: (n.key, n.priority), _rinorder(self._root))
+        return map(lambda n: (n.key, n.priority), tds.rinorder(self._root))
 
     def height(self) -> int:
-        return _height(self._root)
+        return tds.height(self._root)
 
     def left_height(self) -> int:
         if self._root is None:
             return 0
-        return _height(self._root.left)
+        return tds.height(self._root.left)
 
     def right_height(self) -> int:
         if self._root is None:
             return 0
-        return _height(self._root.right)
+        return tds.height(self._root.right)
 
     def height_diff(self) -> int:
         return abs(self.left_height() - self.right_height())
@@ -254,12 +181,12 @@ class Treap[T: _Ordered]:
     def max(self) -> T:
         if self._root is None:
             raise KeyError
-        return _max(self._root).key
+        return tds.rightmost(self._root).key
 
     def min(self) -> T:
         if self._root is None:
             raise KeyError
-        return _min(self._root).key
+        return tds.leftmost(self._root).key
 
     def insert(self, key: T, priority: float):
         self._insert(Node(key, priority))

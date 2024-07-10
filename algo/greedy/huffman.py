@@ -3,7 +3,7 @@ import typing as ty
 import heapq
 import enum
 
-type FreqTable = ty.MutableMapping[str, int]
+type FreqTable = ty.Mapping[str, int]
 type CodesTable = ty.Mapping[str, str]
 
 
@@ -81,7 +81,6 @@ def main(text: str):
     length = len(original)
     clength = len(compressed)
     deflated = decode_str_bits(compressed, codes)
-    print(codes)
     print(f"InputTextSize: {length} bits")
     print(f"CompressedSize: {clength} bits")
     print(f"SpaceSaving: {round((length - clength) / length * 100, 2)}%")
@@ -92,5 +91,5 @@ if __name__ == "__main__":
     # text = "aaaaabbbbcccdde"
     import sys
 
-    text = sys.stdin.read()
-    main(text)
+    text = sys.stdin.buffer.read()
+    main(ascii(text))

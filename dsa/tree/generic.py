@@ -15,6 +15,7 @@ __all__ = (
     "leftmost",
     "walk",
     "length",
+    "nodify",
 )
 
 
@@ -64,16 +65,17 @@ def _preorder(tree: Node | None, order: _Orderer[Node]) -> ty.Iterable[Node]:
             yield node
 
 
-def _postorder(tree: Node | None, order: _Orderer[Node]) -> ty.Iterable[Node]:
+def _postorder(
+    tree: Node | None, order: ty.Callable[[Node], ty.Iterable[tuple[Node, bool]]]
+) -> ty.Iterable[Node]:
     stack: list[tuple[Node | None, bool]] = [(tree, False)]
-    ex_order = True, False, False
     while stack:
         node, expanded = stack.pop()
         if node is not None:
             if expanded:
                 yield node
                 continue
-            stack.extend(zip(order(node), ex_order))
+            stack.extend(order(node))
 
 
 def inorder(tree: Node | None) -> ty.Iterable[Node]:
@@ -93,11 +95,11 @@ def rpreorder(tree: Node | None) -> ty.Iterable[Node]:
 
 
 def postorder(tree: Node | None) -> ty.Iterable[Node]:
-    return _postorder(tree, lambda n: (n, n.right, n.left))
+    return _postorder(tree, lambda n: ((n, True), (n.right, False), (n.left, False)))
 
 
 def rpostorder(tree: Node | None) -> ty.Iterable[Node]:
-    return _postorder(tree, lambda n: (n, n.left, n.right))
+    return _postorder(tree, lambda n: ((n, True), (n.left, False), (n.right, False)))
 
 
 def breadth(tree: Node | None) -> ty.Iterable[Node]:
@@ -134,35 +136,41 @@ def height(node: INode | None) -> int:
     stack: list[tuple[INode | None, bool, int]] = [(node, False, 0)]
     while True:
         node, expanded, height = stack.pop()
-        if expanded:
-            if not stack:
-                break
-            other, oexpanded, oheight = stack.pop()
-            if oexpanded:
-                parent, _, _ = stack.pop()
-                new_height = max(oheight, height) + 1
-                stack.append((parent, True, new_height))
-            else:
-                stack.append((node, True, height))
-                stack.append((other, False, 0))
+        if not expanded:
+            stack.append((node, True, height))
+            if node is not None and node.left is not node.right:
+                stack.append((node.left, False, 1))
+                stack.append((node.right, False, 1))
+            continue
+        if not stack:
+            break
+        other, oexpanded, oheight = stack.pop()
+        if oexpanded:
+            parent, _, _ = stack.pop()
+            if oheight > height:
+                height = oheight
+            stack.append((parent, True, height + 1))
         else:
-            stack.append((node, True, 0))
-            if node is not None:
-                stack.append((node.left, False, 0))
-                stack.append((node.right, False, 0))
+            stack.append((node, True, height))
+            stack.append((other, False, oheight))
     return height
 
 
-def length(tree: INode | None) -> int:
+def length(tree: INode) -> int:
     total: int = 0
-    stack = [tree]
-    while stack:
-        tree = stack.pop()
-        if tree is None:
-            continue
-        total += 1
-        stack.append(tree.left)
-        stack.append(tree.right)
+    from collections import deque
+
+    stack = deque((tree,))
+    try:
+        while True:
+            tree = stack.popleft()
+            total += 1
+            if tree.left is not None:
+                stack.append(tree.left)
+            if tree.right is not None:
+                stack.append(tree.right)
+    except IndexError:
+        ...
     return total
 
 
@@ -183,7 +191,7 @@ def bstindices(layers: int) -> ty.Generator[int, None, None]:
             queue, nqueue = nqueue, queue
 
 
-type _Connector[Node] = ty.Callable[[Node, Node, Node | None], None]
+type _Connector[Node] = ty.Callable[[Node, Node | None, Node | None], None]
 type _Creator[Node, T] = ty.Callable[[T], Node]
 
 
@@ -199,8 +207,11 @@ def nodify[
     import math as m
 
     if n is None:
-        iterable = list(iterable)
-        n = len(iterable)
+        try:
+            n = len(iterable)  # type: ignore
+        except TypeError:
+            iterable = tuple(iterable)
+            n = len(iterable)
     if n <= 0:
         raise ValueError(f"Invalid iterable size value {n=}, expected n > 0")
 
@@ -231,7 +242,7 @@ def nodify[
             children.pop()
             children.append((parent, lheight + 1))
 
-        new_parent: T = next(iterator, sentinel) # type: ignore
+        new_parent: T = next(iterator, sentinel)  # type: ignore
         if new_parent is sentinel:
             break
         parents.append(new_parent)

@@ -23,15 +23,8 @@ Extra topics to be covered include dynamic programming and code profiling, it's 
 - Learn how to do benchmarks
 
 ### Languages.
-Main Languages used:
 - __Python__ - for quick implementations.
-- __C__ - deeper understanding of safety.
-- __C++__ - also for deeper understanding of safety and edge cases.
-
-Other technologies/languages:
 - __Markdown__ - for documentation.
-
-This means, some algorithms will be implemented in multiple languages simultaneously for contrast from language to language.
 
 ### Project Structure.
 This project is divided into three parts.
@@ -55,6 +48,6 @@ __*These data structures and algorithms are neither meant to be most efficient n
 
 [programiz]: https://www.programiz.com/dsa
 [dsa_picture]: ./assets/dsa-intro-picture.jpg
-[data_structures]: ./data_structures/index.md
-[algorithms]: ./algorithms/index.md
+[data_structures]: ./dsa/index.md
+[algorithms]: ./algo/index.md
 [extras]: ./extras/index.md

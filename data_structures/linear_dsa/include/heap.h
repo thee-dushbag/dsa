@@ -1,6 +1,0 @@
-#ifndef __SNN_LINEAR_DSA_IMPL_HEAP_H_
-#define __SNN_LINEAR_DSA_IMPL_HEAP_H_
-
-
-
-#endif //__SNN_LINEAR_DSA_IMPL_HEAP_H_
