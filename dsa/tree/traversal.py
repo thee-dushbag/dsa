@@ -10,7 +10,6 @@ the node's the lastly the right child's. (mnemonic: LPR)
 right childs and lastly the node's data. (mnemonic: LRP)
 """
 
-from tkinter import N
 import typing as ty
 import dataclasses as dt
 

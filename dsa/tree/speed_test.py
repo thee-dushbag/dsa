@@ -1,4 +1,5 @@
-import dataclasses as dt, typing as ty, dsa.tree.generic as t, traversal as tr
+import dataclasses as dt, typing as ty
+from . import generic as t, traversal as tr
 
 nodify_loop = t.nodify
 nodify_loop.__name__ = "nodify_loop"
@@ -23,7 +24,7 @@ def connect[T](parent: Node[T], left: Node[T] | None, right: Node[T] | None):
 
 def _nodify_helper[
     Node, T
-](connect: t._Connector[Node], create: t._Creator[Node, T], values: ty.Sequence[T]) -> (
+](connect: t.Connector[Node], create: t.Creator[Node, T], values: ty.Sequence[T]) -> (
     Node | None
 ):
     if not values:
@@ -39,8 +40,8 @@ def _nodify_helper[
 def nodify_recursion[
     Node, T
 ](
-    connect: t._Connector[Node],
-    create: t._Creator[Node, T],
+    connect: t.Connector[Node],
+    create: t.Creator[Node, T],
     iterable: ty.Iterable[T],
     size: int | None = None,
 ) -> Node:
@@ -108,7 +109,9 @@ def nodify_speed_test(n: int, runs: int):
     timeit(runs, nodify_loop, connect, Node[int], range(n), n)
 
 
-type Orderer[T] = ty.Callable[[Node[T] | None], ty.Iterable[Node[T]]]
+type _Orderer[Node: t.INode] = ty.Callable[[Node | None], ty.Iterable[Node]]
+type Orderer[T] = _Orderer[Node[T]]
+type Orderers[T] = ty.Sequence[_Orderer[Node[T]]]
 
 
 def _order_speed_test[T](tree: Node[T], runs: int, orderer: Orderer[T]):
@@ -134,7 +137,7 @@ def order_speed_test(n: int, runs: int):
         _(t.postorder),
         _(tr.postorder),
     )
-    orderers = ty.cast(list[Orderer[int]], orderers)
+    orderers = ty.cast(ty.Iterable[Orderer[int]], orderers)
 
     for orderer in orderers:
         _order_speed_test(root, runs, orderer)
@@ -151,5 +154,6 @@ def height_speed_test(n: int, runs: int):
 
 if __name__ == "__main__":
     # order_speed_test(1_500_000, 10)
-    height_speed_test(5_000_000, 2)
+    # height_speed_test(5_000_000, 2)
     # order_speed_test(2_500_000, 10)
+    nodify_speed_test(5_000_000, 5)

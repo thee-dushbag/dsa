@@ -191,15 +191,15 @@ def bstindices(layers: int) -> ty.Generator[int, None, None]:
             queue, nqueue = nqueue, queue
 
 
-type _Connector[Node] = ty.Callable[[Node, Node | None, Node | None], None]
-type _Creator[Node, T] = ty.Callable[[T], Node]
+type Connector[Node] = ty.Callable[[Node, Node | None, Node | None], None]
+type Creator[Node, T] = ty.Callable[[T], Node]
 
 
 def nodify[
     Node, T
 ](
-    connect: _Connector[Node],
-    create: _Creator[Node, T],
+    connect: Connector[Node],
+    create: Creator[Node, T],
     iterable: ty.Iterable[T],
     n: int | None = None,
 ) -> Node:
@@ -215,7 +215,7 @@ def nodify[
     if n <= 0:
         raise ValueError(f"Invalid iterable size value {n=}, expected n > 0")
 
-    def manage_extras(iterable: ty.Iterable[T], extras: ty.MutableSequence[T]):
+    def manage_extras(iterable: ty.Iterable[T], extras: ty.MutableSequence[T]) -> ty.Iterator[T]:
         extra_count = n - 2 ** m.floor(m.log2(n + 1)) + 1
         iterator = iter(iterable)
         for _ in range(extra_count):
